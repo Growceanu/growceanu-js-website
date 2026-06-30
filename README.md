@@ -28,7 +28,7 @@ Page Settings → Custom Code → Before `</body>` for one page):
 ```
 
 `@1` always resolves to the latest `v1.x.y` tag. The URL in Webflow never changes
-until a major version bump (see *Migration* below).
+until a major version bump (see *Folder structure — current and planned* below).
 
 ## Authoring a script
 

@@ -1,0 +1,12 @@
+{
+  "name": "growceanu-js-website",
+  "version": "1.0.0",
+  "description": "Vanilla JS files served to the growceanu.com Webflow site via the jsDelivr CDN.",
+  "private": true,
+  "license": "UNLICENSED",
+  "author": "Growceanu",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Growceanu/growceanu-js-website.git"
+  }
+}

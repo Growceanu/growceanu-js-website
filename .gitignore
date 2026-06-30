@@ -1,0 +1,11 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log
+
+# Only relevant if a build step is ever added
+node_modules/
+dist/
+
+# Controller bookkeeping (SDD ledger)
+.superpowers/

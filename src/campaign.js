@@ -82,7 +82,7 @@ async function fetchJson(endpoint) {
 	if (!response.ok) {
     const locale = (document.documentElement?.lang || '').toLowerCase() || 'en';
     const isEnglish = locale === 'en' || locale.startsWith('en-');
-    const path = isEnglish ? '/investors-oportunities' : `/${locale}/investors-oportunities`;
+    const path = isEnglish ? '/opportunities' : `/${locale}/campanii`;
     window.location.href = path;
 		throw new Error(`Failed to fetch ${endpoint}: ${response.status}`);
 	}

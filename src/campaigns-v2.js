@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://api.staging.growceanu.com/api/rest/';
+const API_BASE_URL = 'https://api3.growceanu.com/api/rest/';
 const LIMIT = Number.isFinite(Number(window.CAMPAIGNS_CONFIG?.limit))
   ? Number(window.CAMPAIGNS_CONFIG.limit)
   : 40;
@@ -12,7 +12,7 @@ const CAMPAIGN_URL_PREFIX = '/campaign/';
 const CAMPAIGN_OPEN_STAGE_ID = '06909c7c-e94a-40de-8903-d8127e6e604d';
 
 const COMINGSOON_TEXT = "Coming soon";
-const FOLLOWLINK = "https://investors-staging.growceanu.com/?role=investor";
+const FOLLOWLINK = "https://app.growceanu.com/?role=investor";
 
 async function fetchJson(endpoint) {
 	const response = await fetch(`${API_BASE_URL}${endpoint}`);

@@ -1,8 +1,8 @@
-const API_BASE_URL = 'https://api.staging.growceanu.com/api/rest/';
+const API_BASE_URL = 'https://api3.growceanu.com/api/rest/';
 const DEFAULT_IMAGE = 'https://cdn.prod.website-files.com/68b050fbb5db71e378de9264/693000c423b43158575a083f_campaign-placeholder.svg';
 const CAMPAIGN_CONTAINER_ID = 'single-campaign-container';
 const CAMPAIGN_OPEN_STAGE_ID = '06909c7c-e94a-40de-8903-d8127e6e604d';
-const CAMPAIGN_INVEST_URL_PREFIX = 'https://investors-staging.growceanu.com/startup/'; 
+const CAMPAIGN_INVEST_URL_PREFIX = 'https://app.growceanu.com/startup/'; 
 
 function sanitizeHtml(html) {
   if (typeof html !== 'string' && !(html instanceof String)) {

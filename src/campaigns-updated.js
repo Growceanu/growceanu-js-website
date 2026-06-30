@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://api.staging.growceanu.com/api/rest/';
+const API_BASE_URL = 'https://api3.growceanu.com/api/rest/';
 const LIMIT = Number.isFinite(Number(window.CAMPAIGNS_CONFIG?.limit))
   ? Number(window.CAMPAIGNS_CONFIG.limit)
   : 40;

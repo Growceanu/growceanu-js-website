@@ -9,6 +9,7 @@ const DEFAULT_IMAGE = 'https://cdn.prod.website-files.com/68b050fbb5db71e378de92
 const CAMPAIGN_CARD_CONTAINER_ID = 'campaigns-grid-container';
 const CAMPAIGN_CARD_TEMPLATE_ID = 'campaigns-grid-item';
 const CAMPAIGN_URL_PREFIX = '/campaign/';
+const CAMPAIGN_URL_PREFIX_RO = '/campanii/';
 const CAMPAIGN_OPEN_STAGE_ID = '06909c7c-e94a-40de-8903-d8127e6e604d';
 
 const COMINGSOON_TEXT = "Coming soon";
@@ -245,7 +246,7 @@ async function renderRounds(container, template) {
       const videoId = typeof video_url === 'string' ? video_url.toLowerCase().trim().replace(/[^0-9A-Za-z_-]/g, '') : null;
 
       let link = CAMPAIGN_URL_PREFIX;
-      if (!isEnglish) link = "/" + locale + link;
+      if (!isEnglish) link = "/" + locale + CAMPAIGN_URL_PREFIX_RO;
 
       if (typeof id === 'string') {
         const sanitizedId = id.toLowerCase().trim().replace(/[^0-9A-Za-z_-]/g, '');

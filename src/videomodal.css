@@ -1,0 +1,184 @@
+/* move to head in page settings */
+.video-modal{
+  /* variables */
+  /* ---------- Core sizing ---------- */
+  --vm-width: 496px;                 /* design width */
+  /* design aspect ratio */
+  --vm-ratio-w: 496;
+  --vm-ratio-h: 820;
+
+  /* ---------- Layout gaps ---------- */
+  --vm-gap: 20px;                    /* base margin around modal */
+
+  /* ---------- iOS safe area ---------- */
+  --vm-safe-top: env(safe-area-inset-top, 0px);
+  --vm-safe-right: env(safe-area-inset-right, 0px);
+  --vm-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --vm-safe-left: env(safe-area-inset-left, 0px);
+
+  /* ---------- Derived edges ---------- */
+  --vm-edge-top: calc(var(--vm-gap) + var(--vm-safe-top));
+  --vm-edge-right: calc(var(--vm-gap) + var(--vm-safe-right));
+  --vm-edge-bottom: calc(var(--vm-gap) + var(--vm-safe-bottom));
+  --vm-edge-left: calc(var(--vm-gap) + var(--vm-safe-left));
+
+  position: fixed;
+  inset: 0;
+  z-index: 1222;
+
+  display: block;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+
+  transition: opacity 220ms ease;
+}
+
+.video-modal.is-open {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.video-modal.is-closing {
+  visibility: visible;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.video-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.video-modal.is-open .video-modal-overlay{
+  opacity: 1;
+}
+
+.video-modal-dialog {
+  position: relative;
+  margin: 0 auto;
+  top: 50%;
+  background: #000;
+  overflow: hidden;
+  box-shadow: 0 0px 300px #5CB5FD;
+
+  /* Responsive sizing with hard limits */
+  width: min(
+    var(--vm-width),
+    calc(100vw - (var(--vm-edge-left) + var(--vm-edge-right)))
+  );
+  aspect-ratio: var(--vm-ratio-w) / var(--vm-ratio-h);
+  max-height: calc(
+    100vh - (var(--vm-edge-top) + var(--vm-edge-bottom))
+  );
+  max-width: 100%;
+
+  /* Start state (closed): slightly smaller + lower + transparent */
+  transform: translateY(calc(-50% + 8px)) scale(0.96);
+  opacity: 0;
+
+  transition:
+    transform 220ms cubic-bezier(.2,.8,.2,1),
+    opacity 220ms ease;
+}
+
+.video-modal.is-open .video-modal-dialog {
+  transform: translateY(-50%) scale(1);
+  opacity: 1;
+}
+
+.video-modal-close {
+  position: absolute;
+  top: calc(20px + var(--vm-safe-top));
+  right: calc(20px + var(--vm-safe-right));
+  z-index: 5;
+  cursor: pointer;
+}
+
+.video-modal-media,
+.video-modal-wistia {
+  position: absolute;
+  inset: 0;
+}
+
+/* Force Wistia iframe to fill container */
+.video-modal-wistia .wistia_embed,
+.video-modal-wistia .wistia_embed > div,
+.video-modal-wistia iframe{
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.video-modal-top,
+.video-modal-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  opacity: 1;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.video-modal-top {
+  top: 0;
+  padding:
+    calc(30px + var(--vm-safe-top))
+    20px
+    20px;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,.75),
+    rgba(0,0,0,0)
+  );
+}
+.video-modal-bottom {
+  bottom: 0;
+  padding:
+    20px
+    20px
+    calc(20px + var(--vm-safe-bottom));
+
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,.75),
+    rgba(0,0,0,0)
+  );
+}
+
+.video-modal.is-playing .video-modal-top,
+.video-modal.is-playing .video-modal-bottom {
+  opacity: 0;
+  pointer-events: none;
+}
+.video-modal.is-playing .video-modal-bottom {
+  transform: translateY(8px);
+}
+.video-modal.is-playing .video-modal-top {
+  transform: translateY(-8px);
+}
+
+html.vm-lock,
+body.vm-lock{
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .video-modal,
+  .video-modal-overlay,
+  .video-modal-dialog,
+  .video-modal-top,
+  .video-modal-bottom{
+    transition: none;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .video-modal-top {
+    padding-top: calc(20px + var(--vm-safe-top));
+  }
+}

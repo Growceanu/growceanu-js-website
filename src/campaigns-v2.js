@@ -13,6 +13,7 @@ const CAMPAIGN_URL_PREFIX_RO = '/campanie/';
 const CAMPAIGN_OPEN_STAGE_ID = '06909c7c-e94a-40de-8903-d8127e6e604d';
 
 const COMINGSOON_TEXT = "Coming soon";
+const COMINGSOON_TEXT_RO = "În curând";
 const FOLLOWLINK = "https://app.growceanu.com/sign-up";
 
 async function fetchJson(endpoint) {
@@ -96,8 +97,12 @@ function populateCampaignBox(template, { name, imageUrl, remainingDays, descript
     ['.campaign-box-investors-count', investorCount]
   ].forEach(([sel, val]) => setText(card, sel, val));
 
+  const locale = (document.documentElement?.lang || '').toLowerCase() || 'en';
+  const isEnglish = locale === 'en' || locale.startsWith('en-');
+
   if (roundGroup == "coming_soon") {
-    setText(card, '.campaign-box-time .w-embed', COMINGSOON_TEXT);
+    const comingSoonText = isEnglish ? COMINGSOON_TEXT : COMINGSOON_TEXT_RO;
+    setText(card, '.campaign-box-time .w-embed', comingSoonText);
     setHidden(card, '.campaign-box-investors', true);
     setHidden(card, '.campaign-raising-percent', true);
   }

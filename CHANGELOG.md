@@ -3,6 +3,10 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.3 — 2026-07-01
+
+- FIX Actualizat urls pentru locale RO.
+
 ## v1.1.2 — 2026-07-01
 
 - Actualizat urls pentru locale RO.

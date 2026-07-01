@@ -14,6 +14,8 @@ const CAMPAIGN_OPEN_STAGE_ID = '06909c7c-e94a-40de-8903-d8127e6e604d';
 
 const COMINGSOON_TEXT = "Coming soon";
 const COMINGSOON_TEXT_RO = "În curând";
+const FOLLOW_TEXT = "Follow";
+const FOLLOW_TEXT_RO = "Urmărește";
 const FOLLOWLINK = "https://app.growceanu.com/sign-up";
 
 async function fetchJson(endpoint) {
@@ -136,8 +138,9 @@ function populateCampaignBox(template, { name, imageUrl, remainingDays, descript
   setHidden(card, '.campaign-box-button-minimum', !showMinimum);
 
   if (roundGroup == "coming_soon") {
+    const followText = isEnglish ? FOLLOW_TEXT : FOLLOW_TEXT_RO;
     setHidden(card, '.campaign-box-button-minimum', true);
-    setText(card, '.campaign-box-button-label', 'Follow');
+    setText(card, '.campaign-box-button-label', followText);
     link = FOLLOWLINK;
     setAttr(card, '.campaign-box', 'target', "_blank");
   }

@@ -3,6 +3,10 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.5 — 2026-07-01
+
+- Actualizat Follow label
+
 ## v1.1.4 — 2026-07-01
 
 - Adăugat translate la label Coming soon

@@ -9,11 +9,11 @@ const DEFAULT_IMAGE = 'https://cdn.prod.website-files.com/68b050fbb5db71e378de92
 const CAMPAIGN_CARD_CONTAINER_ID = 'campaigns-grid-container';
 const CAMPAIGN_CARD_TEMPLATE_ID = 'campaigns-grid-item';
 const CAMPAIGN_URL_PREFIX = '/campaign/';
-const CAMPAIGN_URL_PREFIX_RO = '/campanii/';
+const CAMPAIGN_URL_PREFIX_RO = '/campanie/';
 const CAMPAIGN_OPEN_STAGE_ID = '06909c7c-e94a-40de-8903-d8127e6e604d';
 
 const COMINGSOON_TEXT = "Coming soon";
-const FOLLOWLINK = "https://app.growceanu.com/?role=investor";
+const FOLLOWLINK = "https://app.growceanu.com/sign-up";
 
 async function fetchJson(endpoint) {
 	const response = await fetch(`${API_BASE_URL}${endpoint}`);

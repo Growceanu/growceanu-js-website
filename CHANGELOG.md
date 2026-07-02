@@ -3,6 +3,12 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.8 — 2026-07-02
+
+- `campaigns-v2.js` — coming-soon cards now hide the whole `.campaign-box-raising`
+  wrapper (including the "Raising" label), not just the inner amount/percent.
+  Fixes a leftover "Raising" label from v1.1.7.
+
 ## v1.1.7 — 2026-07-02
 
 - `campaigns-v2.js` — card image now uses the REST `cover` field

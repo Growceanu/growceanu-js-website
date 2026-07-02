@@ -107,8 +107,9 @@ function populateCampaignBox(template, { name, imageUrl, remainingDays, descript
     setText(card, '.campaign-box-time .w-embed', comingSoonText);
     setHidden(card, '.campaign-box-investors', true);
     // Coming-soon rounds have no funding progress yet: hide the whole raising
-    // block (amount + percent). Valuation is hidden below via showPreValuation.
-    setHidden(card, '.campaign-raising', true);
+    // wrapper (the "Raising" label + amount + percent). Valuation is hidden
+    // below via showPreValuation.
+    setHidden(card, '.campaign-box-raising', true);
   }
 
   if (amountInvestedPercent == 100) {

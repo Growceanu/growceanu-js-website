@@ -106,7 +106,9 @@ function populateCampaignBox(template, { name, imageUrl, remainingDays, descript
     const comingSoonText = isEnglish ? COMINGSOON_TEXT : COMINGSOON_TEXT_RO;
     setText(card, '.campaign-box-time .w-embed', comingSoonText);
     setHidden(card, '.campaign-box-investors', true);
-    setHidden(card, '.campaign-raising-percent', true);
+    // Coming-soon rounds have no funding progress yet: hide the whole raising
+    // block (amount + percent). Valuation is hidden below via showPreValuation.
+    setHidden(card, '.campaign-raising', true);
   }
 
   if (amountInvestedPercent == 100) {
@@ -129,7 +131,7 @@ function populateCampaignBox(template, { name, imageUrl, remainingDays, descript
     setHidden(card, '.campaign-box-labels');
   }
   
-  const showPreValuation = Number.isFinite(preMoneyValuation) && preMoneyValuation > 0;
+  const showPreValuation = roundGroup != "coming_soon" && Number.isFinite(preMoneyValuation) && preMoneyValuation > 0;
   setText(card, '.campaign-valuation', showPreValuation ? "€" + formatNumberToUnit(preMoneyValuation) : '');
   setHidden(card, '.campaign-box-valuation', !showPreValuation);
 
@@ -205,7 +207,7 @@ async function renderRounds(container, template) {
   for (const [roundGroup, group] of roundGroups) {
     if (!Array.isArray(group) || group.length === 0) continue;
 
-    for (const { name, round_images: images, target_date, startup, minimum_ticket, round_totals, video_url, id, raising_amount, pre_money_valuation, external_commitments, stage_id, round_type } of group) {
+    for (const { name, cover, round_images: images, target_date, startup, minimum_ticket, round_totals, video_url, id, raising_amount, pre_money_valuation, external_commitments, stage_id, round_type } of group) {
 
       const remainingDays = calculateRemainingDays(target_date);
         
@@ -220,11 +222,15 @@ async function renderRounds(container, template) {
         ? `${normalizedDescription.slice(0, 99)}...`
         : normalizedDescription;
 
-      const imageUrl =
-        (Array.isArray(images)
-        && typeof images[0]?.image_url === 'string'
-        && (images[0].image_url.trim() ? images[0].image_url : 0))
-        || DEFAULT_IMAGE;
+      // Campaign cover (REST `cover: [{ url }]`) is the primary image; fall back
+      // to the legacy round_images, then the placeholder.
+      const coverUrl = Array.isArray(cover) && typeof cover[0]?.url === 'string' && cover[0].url.trim()
+        ? cover[0].url
+        : '';
+      const roundImageUrl = Array.isArray(images) && typeof images[0]?.image_url === 'string' && images[0].image_url.trim()
+        ? images[0].image_url
+        : '';
+      const imageUrl = coverUrl || roundImageUrl || DEFAULT_IMAGE;
 
       // Tags live under startup.tags as { tag: { tag_translations: [{ tag }] } };
       // entries with an empty tag_translations array are untranslated for this locale -> skip.

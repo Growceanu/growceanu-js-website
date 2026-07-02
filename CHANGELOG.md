@@ -3,6 +3,14 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.7 — 2026-07-02
+
+- `campaigns-v2.js` — card image now uses the REST `cover` field
+  (`cover[0].url`) as the primary source, falling back to `round_images`
+  then the placeholder.
+- `campaigns-v2.js` — coming-soon rounds hide the raising block (amount +
+  percent) and the valuation; live and closed rounds still show them.
+
 ## v1.1.6 — 2026-07-02
 
 - `campaigns-v2.js` — company card now shows the company name (`startup.name`,

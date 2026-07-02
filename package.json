@@ -1,6 +1,6 @@
 {
   "name": "growceanu-js-website",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Vanilla JS files served to the growceanu.com Webflow site via the jsDelivr CDN.",
   "private": true,
   "license": "UNLICENSED",

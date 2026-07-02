@@ -3,6 +3,13 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.6 — 2026-07-02
+
+- `campaigns-v2.js` — company card now shows the company name (`startup.name`,
+  trimmed) instead of the round name. Tags are read from `startup.tags`
+  (`tag.tag_translations[].tag`); previously the script read a non-existent
+  top-level `tags` field, so tags never rendered.
+
 ## v1.1.5 — 2026-07-01
 
 - Actualizat Follow label

@@ -205,11 +205,11 @@ async function renderRounds(container, template) {
   for (const [roundGroup, group] of roundGroups) {
     if (!Array.isArray(group) || group.length === 0) continue;
 
-    for (const { name, round_images: images, target_date, startup, minimum_ticket, round_totals, video_url, tags, id, raising_amount, pre_money_valuation, external_commitments, stage_id, round_type } of group) {
+    for (const { name, round_images: images, target_date, startup, minimum_ticket, round_totals, video_url, id, raising_amount, pre_money_valuation, external_commitments, stage_id, round_type } of group) {
 
       const remainingDays = calculateRemainingDays(target_date);
         
-      const displayName = typeof name === 'string' && name.trim() ? name : 'Untitled campaign';
+      const displayName = typeof startup?.name === 'string' ? startup.name.trim() : '';
 
       const rawDescription = typeof startup === 'string'
         ? startup
@@ -226,19 +226,16 @@ async function renderRounds(container, template) {
         && (images[0].image_url.trim() ? images[0].image_url : 0))
         || DEFAULT_IMAGE;
 
+      // Tags live under startup.tags as { tag: { tag_translations: [{ tag }] } };
+      // entries with an empty tag_translations array are untranslated for this locale -> skip.
       let displayTags = [];
-      if (typeof tags !== 'undefined') {
-        if (Array.isArray(tags)) {
-          for (let i = 0; i < tags.length; i++) {
-            const tag = tags[i];
-            if (typeof tag === 'string') {
-              const trimmed = tag.trim();
-              if (trimmed) displayTags.push(trimmed);
-            }
-          }
-        } else if (typeof tags === 'string' && tags.trim()) {
-          displayTags.push(tags.trim());
-        }
+      const startupTags = Array.isArray(startup?.tags) ? startup.tags : [];
+      for (let i = 0; i < startupTags.length; i++) {
+        const translations = startupTags[i]?.tag?.tag_translations;
+        const label = Array.isArray(translations) && typeof translations[0]?.tag === 'string'
+          ? translations[0].tag.trim()
+          : '';
+        if (label) displayTags.push(label);
       }
 
       const amountInvested = typeof round_totals?.amount_invested === 'number' ? round_totals.amount_invested : 0;   

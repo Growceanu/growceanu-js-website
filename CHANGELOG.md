@@ -3,6 +3,10 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.9 — 2026-07-03
+
+- `campaign.js` — format thousand values for Deal Term data + update url opportunities
+
 ## v1.1.8 — 2026-07-02
 
 - `campaigns-v2.js` — coming-soon cards now hide the whole `.campaign-box-raising`

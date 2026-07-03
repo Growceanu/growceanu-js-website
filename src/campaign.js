@@ -159,6 +159,16 @@ function formatNumberToUnit(value) {
 	return `${value}`;
 }
 
+function formatThousands(value) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return `${value}`;
+  const isNegative = value < 0;
+  const abs = Math.abs(value);
+  const parts = abs.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const result = parts.length > 1 ? parts[0] + ',' + parts[1] : parts[0];
+  return (isNegative ? '-' : '') + result;
+}
+
 function populateCampaignInfo(card, { name, imageUrl, remainingDays, description, amountInvested, amountInvestedPercent, preMoneyValuation, postMoneyValuation, externalCommitments, growceanuTargetRound, investorCount, raisingAmount, minimumTicket, maxTicket, videoId, displayTags, link, longDescription, campaignOpen, campaignType, targetDate }) {
 	
   const img = card.querySelector('.campaign-box-image img');
@@ -201,26 +211,26 @@ function populateCampaignInfo(card, { name, imageUrl, remainingDays, description
   }
   
   const showExternalCommitments = Number.isFinite(externalCommitments) && externalCommitments > 0;
-  setTextAll(card, '.campaign-external-commitments', showExternalCommitments ? "€" + externalCommitments : '-');
+  setTextAll(card, '.campaign-external-commitments', showExternalCommitments ? "€" + formatThousands(externalCommitments) : '-');
   
   const showGrowceanuTargetRound = Number.isFinite(growceanuTargetRound) && growceanuTargetRound > 0;
-  setTextAll(card, '.campaign-growceanu-target-round', showGrowceanuTargetRound ? "€" + growceanuTargetRound : '-');
+  setTextAll(card, '.campaign-growceanu-target-round', showGrowceanuTargetRound ? "€" + formatThousands(growceanuTargetRound) : '-');
   
   const showAmountInvested = Number.isFinite(amountInvested) && amountInvested > 0;
-  setTextAll(card, '.campaign-amount-invested', showAmountInvested ? "€" + amountInvested : '-');
+  setTextAll(card, '.campaign-amount-invested', showAmountInvested ? "€" + formatThousands(amountInvested) : '-');
   
   const showPreValuation = Number.isFinite(preMoneyValuation) && preMoneyValuation > 0;
-  setTextAll(card, '.campaign-valuation-pre-full', showPreValuation ? "€" + preMoneyValuation : '-');
+  setTextAll(card, '.campaign-valuation-pre-full', showPreValuation ? "€" + formatThousands(preMoneyValuation) : '-');
   setText(card, '.campaign-valuation', showPreValuation ? "€" + formatNumberToUnit(preMoneyValuation) : '');
   setHidden(card, '.campaign-box-valuation', !showPreValuation);
     
   const showPostValuation = Number.isFinite(postMoneyValuation) && postMoneyValuation > 0;
-  setTextAll(card, '.campaign-valuation-post-full', showPostValuation ? "€" + postMoneyValuation : '-');
+  setTextAll(card, '.campaign-valuation-post-full', showPostValuation ? "€" + formatThousands(postMoneyValuation) : '-');
 
 
 
   const showMinimum = Number.isFinite(minimumTicket) && minimumTicket > 0;
-  setTextAll(card, '.campaign-min-invest', showMinimum ? "€" + minimumTicket : '');
+  setTextAll(card, '.campaign-min-invest', showMinimum ? "€" + formatThousands(minimumTicket) : '');
   setHidden(card, '.campaign-min-invest', !showMinimum);
 
   const showMaxim = Number.isFinite(maxTicket) && maxTicket > 0;
@@ -260,7 +270,7 @@ async function renderRound(container, cid) {
   const locale = (document.documentElement?.lang || '').toLowerCase() || 'en';
   const isEnglish = locale === 'en' || locale.startsWith('en-');
   const redirectToOpportunities = () => {
-    const path = isEnglish ? '/investors-oportunities' : `/${locale}/investors-oportunities`;
+    const path = isEnglish ? '/opportunities' : `/${locale}/campanii`;
     window.location.href = path;
   };
 

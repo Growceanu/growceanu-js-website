@@ -1,0 +1,16 @@
+{
+  "extraKnownMarketplaces": {
+    "growceanu-devkit": {
+      "source": {
+        "source": "github",
+        "repo": "Growceanu/growceanu-devkit"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "growceanu-skills@growceanu-devkit": true,
+    "growceanu-workspace-tools@growceanu-devkit": true,
+    "growceanu-orchestration@growceanu-devkit": true,
+    "superpowers@claude-plugins-official": true
+  }
+}

@@ -3,6 +3,15 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.10 — 2026-07-05
+
+- `campaign.js`, `campaigns-updated.js`, `campaigns-v2.js` —
+  `formatNumberToUnit` keeps one decimal with a comma separator
+  (1,500,000 → "1,5 mil" instead of "2 mil"); round values stay clean
+  ("2 mil", not "2,0 mil"). Also fixes the boundary so exactly
+  1,000,000 renders "1 mil" instead of "1000 k". Affects
+  `.campaign-raising-value` and `.campaign-valuation`.
+
 ## v1.1.9 — 2026-07-03
 
 - `campaign.js` — format thousand values for Deal Term data + update url opportunities

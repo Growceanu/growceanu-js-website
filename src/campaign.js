@@ -154,8 +154,8 @@ function cloneMemberCard(template) {
 
 function formatNumberToUnit(value) {
   if (Number.isNaN(value)) return '';
-	if (value > 1000000) return `${Math.round(value / 1000000)} mil`;
-	if (value > 1000) return `${Math.round(value / 1000)} k`;
+	if (value >= 1000000) return `${String(Math.round(value / 100000) / 10).replace('.', ',')} mil`;
+	if (value >= 1000) return `${String(Math.round(value / 100) / 10).replace('.', ',')} k`;
 	return `${value}`;
 }
 

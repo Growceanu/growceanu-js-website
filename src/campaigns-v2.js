@@ -208,7 +208,7 @@ async function renderRounds(container, template) {
   for (const [roundGroup, group] of roundGroups) {
     if (!Array.isArray(group) || group.length === 0) continue;
 
-    for (const { name, cover, round_images: images, target_date, startup, minimum_ticket, round_totals, video_url, id, raising_amount, pre_money_valuation, external_commitments, stage_id, round_type } of group) {
+    for (const { name, cover, round_images: images, target_date, startup, minimum_ticket, round_totals, round_investors_aggregate, video_url, id, raising_amount, pre_money_valuation, external_commitments, stage_id, round_type } of group) {
 
       const remainingDays = calculateRemainingDays(target_date);
         
@@ -245,8 +245,15 @@ async function renderRounds(container, template) {
         if (label) displayTags.push(label);
       }
 
-      const amountInvested = typeof round_totals?.amount_invested === 'number' ? round_totals.amount_invested : 0;   
-      const investorCount = typeof round_totals?.investor_count === 'number' ? round_totals.investor_count : 0;
+      // The API serves round totals as a Hasura aggregate (round_investors_aggregate);
+      // round_totals is kept as a fallback for the older aliased shape.
+      const totalsAgg = round_investors_aggregate?.aggregate;
+      const amountInvested = typeof totalsAgg?.sum?.amount_invested === 'number'
+        ? totalsAgg.sum.amount_invested
+        : (typeof round_totals?.amount_invested === 'number' ? round_totals.amount_invested : 0);
+      const investorCount = typeof totalsAgg?.count === 'number'
+        ? totalsAgg.count
+        : (typeof round_totals?.investor_count === 'number' ? round_totals.investor_count : 0);
       
       const raisingAmount = typeof raising_amount === 'number' ? raising_amount : 0;  
       const preMoneyValuation = typeof pre_money_valuation === 'number' ? pre_money_valuation : null;

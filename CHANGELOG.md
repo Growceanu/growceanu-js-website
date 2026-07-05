@@ -3,6 +3,14 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.11 — 2026-07-06
+
+- `campaign.js` — read round totals from `round_investors_aggregate.aggregate`
+  (`sum.amount_invested`, `count`), the shape the API actually serves; the old
+  `round_totals` alias is kept as a fallback. Fixes "Raised from Growceanu"
+  (`.campaign-amount-invested`) showing "-" instead of the invested amount,
+  and restores the investor count and funding percent derived from it.
+
 ## v1.1.10 — 2026-07-05
 
 - `campaign.js`, `campaigns-updated.js`, `campaigns-v2.js` —

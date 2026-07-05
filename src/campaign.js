@@ -293,8 +293,9 @@ async function renderRound(container, cid) {
     target_date, 
     startup, 
     minimum_ticket, 
-    round_totals, 
-    video_url, 
+    round_totals,
+    round_investors_aggregate,
+    video_url,
     tags, 
     raising_amount, 
     pre_money_valuation, post_money_valuation,
@@ -354,8 +355,15 @@ async function renderRound(container, cid) {
       }
     }
 
-    const amountInvested = typeof round_totals?.amount_invested === 'number' ? round_totals.amount_invested : 0;   
-    const investorCount = typeof round_totals?.investor_count === 'number' ? round_totals.investor_count : 0;
+    // The API serves round totals as a Hasura aggregate (round_investors_aggregate);
+    // round_totals is kept as a fallback for the older aliased shape.
+    const totalsAgg = round_investors_aggregate?.aggregate;
+    const amountInvested = typeof totalsAgg?.sum?.amount_invested === 'number'
+      ? totalsAgg.sum.amount_invested
+      : (typeof round_totals?.amount_invested === 'number' ? round_totals.amount_invested : 0);
+    const investorCount = typeof totalsAgg?.count === 'number'
+      ? totalsAgg.count
+      : (typeof round_totals?.investor_count === 'number' ? round_totals.investor_count : 0);
       
     
     const raisingAmount = typeof raising_amount === 'number' ? raising_amount : 0;  

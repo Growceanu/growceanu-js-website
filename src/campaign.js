@@ -420,27 +420,30 @@ async function renderRound(container, cid) {
     waitForVideoPopup();
 }
 
-const extractCid = () =>
+const extractCid = (search) =>
 {
-  const search = typeof window?.location?.search === 'string' ? window.location.search : '';
-  if (!search)
+  const query = typeof search === 'string'
+    ? search
+    : (typeof window !== 'undefined' && typeof window.location?.search === 'string' ? window.location.search : '');
+  if (!query)
   {
     return null;
   }
 
-  const cidParam = new URLSearchParams(search).get('cid');
+  const cidParam = new URLSearchParams(query).get('cid');
   if (typeof cidParam !== 'string')
   {
     return null;
   }
 
-  const cleaned = cidParam.toLowerCase().trim().replace(/[^0-9A-Za-z_-]/g, '');
-  if (!cleaned)
-  {
-    return null;
-  }
+  // Extract the first well-formed UUID; ignore any junk (e.g. a UTM block folded
+  // in after a stray second "?") so the value handed to the API / invest link is
+  // always a valid uuid or null — never a mangled 48-char string Postgres rejects.
+  const match = cidParam.toLowerCase().match(
+    /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+  );
 
-  return cleaned.slice(0, 48);
+  return match ? match[0] : null;
 }
 
 async function initCampaign() {
@@ -456,7 +459,7 @@ async function initCampaign() {
 	}
 }
 
-(function () {
+if (typeof document !== 'undefined') (function () {
 
   initCampaign();
 
@@ -483,3 +486,9 @@ async function initCampaign() {
   }
 
 })();
+
+// Exported for Node-based unit tests only; this block is inert in the browser
+// (no `module`), so nothing about the served script changes.
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { extractCid };
+}

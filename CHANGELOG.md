@@ -3,6 +3,18 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.12 — 2026-07-20
+
+- `campaign.js` — `extractCid()` now extracts the first well-formed UUID from the
+  inbound `cid` (or returns `null`) instead of stripping punctuation and slicing to
+  48 chars. A campaign deep-link with a stray second `?` before the UTM block
+  (`?cid=<uuid>?utm_source=…`) made `URLSearchParams` read `cid` as
+  `<uuid>?utm_source=linkedin`; the old strip+slice folded the UTMs in and produced
+  an invalid 48-char pseudo-uuid, causing ~52/day Postgres `invalid input syntax for
+  type uuid` errors on the Rayscape live round. Well-formed and uppercase links are
+  unchanged. Adds `test/campaign.test.js` (built-in `node:test`, run
+  `node --test test/campaign.test.js`). Board 2026-07-20-191536.
+
 ## v1.1.11 — 2026-07-06
 
 - `campaign.js`, `campaigns-v2.js` — read round totals from

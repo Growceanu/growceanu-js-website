@@ -147,9 +147,10 @@ const setHidden = (root, selector, hidden = true) => {
 
 // Deal-term rows are `.div-block-108` wrappers (label + value) rendered twice
 // on the page: the desktop `.dealtermscontent` table and the mobile copy.
-// When a value is zero/empty we hide the whole row instead of rendering a "-"
-// placeholder, so a Campaign-preparation round only shows the terms it has.
-const DEAL_TERM_ROW_SELECTOR = '.div-block-108';
+// (The Type row uses `.div-block-107`.) When a value is zero/empty we hide the
+// whole row instead of rendering a "-" placeholder, so a Campaign-preparation
+// round only shows the terms it has.
+const DEAL_TERM_ROW_SELECTOR = '.div-block-107, .div-block-108';
 const setDealTermRow = (root, valueSelector, show, value) => {
   if (!root) return;
   const nodes = root.querySelectorAll(valueSelector);
@@ -166,6 +167,26 @@ const setDealTermRow = (root, valueSelector, show, value) => {
     }
   }
 };
+
+// `video_url` may be a bare Wistia media id ("cve4u971j4") or a full URL
+// ("https://<acct>.wistia.com/medias/<id>"). Extract the id from either; the
+// old code stripped all non-id chars, which turned a full URL into a garbage
+// string that still passed the modal's validator but never loaded.
+function parseWistiaId(video_url) {
+  if (typeof video_url !== 'string') return null;
+  const raw = video_url.trim();
+  if (!raw) return null;
+  let id = raw;
+  const medias = raw.match(/\/medias\/([A-Za-z0-9_-]+)/);
+  if (medias) {
+    id = medias[1];
+  } else if (raw.indexOf('/') !== -1) {
+    const path = raw.split(/[?#]/)[0].replace(/\/+$/, '');
+    id = path.slice(path.lastIndexOf('/') + 1);
+  }
+  id = id.replace(/[^0-9A-Za-z_-]/g, '');
+  return /^[A-Za-z0-9_-]{3,80}$/.test(id) ? id : null;
+}
 
 function cloneMemberCard(template) {
 	const card = template.cloneNode(true);
@@ -208,10 +229,12 @@ function populateCampaignInfo(card, { name, imageUrl, remainingDays, description
     ['.campaign-box-investors-count', investorCount]
   ].forEach(([sel, val]) => setText(card, sel, val));
 
-  [
-    ['.campaign-title', name],
-    ['.campaign-type', campaignType],
-  ].forEach(([sel, val]) => setTextAll(card, sel, val));
+  setTextAll(card, '.campaign-title', name);
+
+  // Type is a deal-term row (.div-block-107): hide it when empty or "-"
+  // (e.g. a Campaign-preparation round with no round_type set yet).
+  const showType = typeof campaignType === 'string' && campaignType.trim() !== '' && campaignType.trim() !== '-';
+  setDealTermRow(card, '.campaign-type', showType, campaignType);
 
   // Hide the investors pill when a round has no investors yet (e.g. a
   // Campaign-preparation round). Live rounds always have > 0, so no change.
@@ -404,7 +427,7 @@ async function renderRound(container, cid) {
     const minimumTicket = typeof minimum_ticket === 'number' ? minimum_ticket : null;
     const maxTicket = typeof max_ticket === 'number' ? max_ticket : null;
 
-    const videoId = typeof video_url === 'string' ? video_url.toLowerCase().trim().replace(/[^0-9A-Za-z_-]/g, '') : null;
+    const videoId = parseWistiaId(video_url);
 
     const campaignOpen = typeof stage_id === 'string' && stage_id.trim() === CAMPAIGN_OPEN_STAGE_ID;
     const campaignType = round_type?.round_type_translations?.[0]?.type || "-";

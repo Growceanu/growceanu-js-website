@@ -3,6 +3,17 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.18 — 2026-07-23
+
+- `campaigns-v2.js` — Campaign-preparation cards in the opportunities list now
+  open the campaign detail page (like live cards) instead of only offering
+  Follow. Openable = live rounds + preparation rounds. Preparation rounds are
+  identified by an explicit id allowlist (`OPENABLE_PREP_IDS`, currently just
+  Urban Spaces) because the API doesn't flag them per round yet — add ids or swap
+  for the flag later. Openable cards get a brighter cover + a "See more" CTA and
+  open in the same tab; non-openable coming-soon cards (Origin BCI, RongoDesign)
+  keep Follow -> sign-up.
+
 ## v1.1.17 — 2026-07-23
 
 - `videomodal.js` — the video now autoplays on mobile too. Mobile browsers block

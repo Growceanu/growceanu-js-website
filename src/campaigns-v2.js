@@ -17,6 +17,17 @@ const COMINGSOON_TEXT_RO = "În curând";
 const FOLLOW_TEXT = "Follow";
 const FOLLOW_TEXT_RO = "Urmărește";
 const FOLLOWLINK = "https://app.growceanu.com/sign-up";
+const SEEMORE_TEXT = "See more";
+const SEEMORE_TEXT_RO = "Vezi detalii";
+
+// Openable = live rounds + Campaign-preparation rounds (a detail page is ready).
+// Live rounds are always openable. Among coming-soon rounds, only the ids listed
+// here open the detail page; the rest keep Follow -> sign-up. The campaigns-v2
+// API doesn't flag this per round yet, so list the prep round ids here — add ids
+// as campaigns enter preparation, or swap this Set for the API flag once it exists.
+const OPENABLE_PREP_IDS = new Set([
+  '8e061c71-f664-4ae0-81f4-04a6b8fe0851', // Urban Spaces
+]);
 
 async function fetchJson(endpoint) {
 	const response = await fetch(`${API_BASE_URL}${endpoint}`);
@@ -95,7 +106,7 @@ function parseWistiaId(video_url) {
   return /^[A-Za-z0-9_-]{3,80}$/.test(id) ? id : null;
 }
 
-function populateCampaignBox(template, { name, imageUrl, remainingDays, description, amountInvested, amountInvestedPercent, preMoneyValuation, investorCount, raisingAmount, minimumTicket, videoId, displayTags, link, campaignOpen, campaignType, roundGroup }) {
+function populateCampaignBox(template, { name, imageUrl, remainingDays, description, amountInvested, amountInvestedPercent, preMoneyValuation, investorCount, raisingAmount, minimumTicket, videoId, displayTags, link, campaignOpen, campaignType, roundGroup, isOpenable }) {
 	const card = cloneMemberCard(template);
   
   //if (roundGroup) card.dataset.roundGroup = roundGroup;
@@ -158,17 +169,35 @@ function populateCampaignBox(template, { name, imageUrl, remainingDays, descript
   setText(card, '.campaign-box-button-minimum-value', showMinimum ? minimumTicket : '');
   setHidden(card, '.campaign-box-button-minimum', !showMinimum);
 
-  if (roundGroup == "coming_soon") {
+  if (roundGroup == "coming_soon" && !isOpenable) {
+    // Not openable yet (Origin BCI, RongoDesign): Follow -> sign-up (new tab).
     const followText = isEnglish ? FOLLOW_TEXT : FOLLOW_TEXT_RO;
     setHidden(card, '.campaign-box-button-minimum', true);
     setText(card, '.campaign-box-button-label', followText);
     link = FOLLOWLINK;
     setAttr(card, '.campaign-box', 'target', "_blank");
   }
+  else if (roundGroup == "coming_soon" && isOpenable) {
+    // Openable Campaign-preparation round (Urban Spaces): the whole card opens
+    // the detail page (link already points there), same tab, "See more" CTA.
+    const seeMoreText = isEnglish ? SEEMORE_TEXT : SEEMORE_TEXT_RO;
+    setHidden(card, '.campaign-box-button-minimum', true);
+    setText(card, '.campaign-box-button-label', seeMoreText);
+    setAttr(card, '.campaign-box', 'target', "_self");
+  }
   else {
     // hide/show invest button
     setHiddenClass(card, '.campaign-box-button', !campaignOpen);
     setHiddenClass(card, '.campaign-box-closed', campaignOpen);
+  }
+
+  // Openable cards (live + prep) get a brighter cover so they read as clickable;
+  // non-openable stay dark.
+  if (isOpenable) {
+    const overlay = card.querySelector('.campaign-box-overlay-image');
+    if (overlay) overlay.style.background = 'linear-gradient(to top, rgba(28,30,44,0.9) 0%, rgba(28,30,44,0.44) 46%, rgba(28,30,44,0.04) 100%)';
+    const coverImg = card.querySelector('.campaign-image');
+    if (coverImg) coverImg.style.filter = 'saturate(1.08) brightness(1.06)';
   }
 
 
@@ -282,18 +311,24 @@ async function renderRounds(container, template) {
       const minimumTicket = typeof minimum_ticket === 'number' ? minimum_ticket : null;
       const videoId = parseWistiaId(video_url);
 
+      const sanitizedId = typeof id === 'string'
+        ? id.toLowerCase().trim().replace(/[^0-9A-Za-z_-]/g, '')
+        : '';
+
+      // Openable = live rounds + Campaign-preparation rounds (detail page ready).
+      const isOpenable = roundGroup === 'live'
+        || (roundGroup === 'coming_soon' && OPENABLE_PREP_IDS.has(sanitizedId));
+
       let link = CAMPAIGN_URL_PREFIX;
       if (!isEnglish) link = "/" + locale + CAMPAIGN_URL_PREFIX_RO;
 
-      if (typeof id === 'string') {
-        const sanitizedId = id.toLowerCase().trim().replace(/[^0-9A-Za-z_-]/g, '');
-        
-        if (sanitizedId && sanitizedId.length <= 48) {
-          link += "?cid=" + sanitizedId;
-        }
+      if (sanitizedId && sanitizedId.length <= 48) {
+        link += "?cid=" + sanitizedId;
       }
 
-      if (roundGroup != "live") link = "";
+      // Non-openable cards don't deep-link: coming-soon get Follow -> sign-up in
+      // populateCampaignBox, closed get no link.
+      if (!isOpenable) link = "";
 
       const campaignOpen = typeof stage_id === 'string' && stage_id.trim() === CAMPAIGN_OPEN_STAGE_ID;
       const campaignType = round_type?.round_type_translations?.type || "-";
@@ -314,7 +349,8 @@ async function renderRounds(container, template) {
         link,
         campaignOpen,
         campaignType,
-        roundGroup
+        roundGroup,
+        isOpenable
       });
 
       fragment.appendChild(card);

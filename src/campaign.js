@@ -145,6 +145,28 @@ const setHidden = (root, selector, hidden = true) => {
   }
 };
 
+// Deal-term rows are `.div-block-108` wrappers (label + value) rendered twice
+// on the page: the desktop `.dealtermscontent` table and the mobile copy.
+// When a value is zero/empty we hide the whole row instead of rendering a "-"
+// placeholder, so a Campaign-preparation round only shows the terms it has.
+const DEAL_TERM_ROW_SELECTOR = '.div-block-108';
+const setDealTermRow = (root, valueSelector, show, value) => {
+  if (!root) return;
+  const nodes = root.querySelectorAll(valueSelector);
+  for (let i = 0; i < nodes.length; i += 1) {
+    const node = nodes[i];
+    const row = node.closest(DEAL_TERM_ROW_SELECTOR);
+    if (show) {
+      node.textContent = value ?? '';
+      if (row) row.style.display = '';
+    } else if (row) {
+      row.style.display = 'none';
+    } else {
+      node.textContent = '';
+    }
+  }
+};
+
 function cloneMemberCard(template) {
 	const card = template.cloneNode(true);
 	card.removeAttribute('id');
@@ -189,8 +211,11 @@ function populateCampaignInfo(card, { name, imageUrl, remainingDays, description
   [
     ['.campaign-title', name],
     ['.campaign-type', campaignType],
-    ['.campaign-target-date', targetDate],
   ].forEach(([sel, val]) => setTextAll(card, sel, val));
+
+  // Hide the investors pill when a round has no investors yet (e.g. a
+  // Campaign-preparation round). Live rounds always have > 0, so no change.
+  setHidden(card, '.campaign-box-investors', !(Number.isFinite(investorCount) && investorCount > 0));
 
   const longDescriptionEl = card.querySelector('.campaign-long-description');
   if (longDescriptionEl) longDescriptionEl.innerHTML = sanitizeHtml(longDescription ?? '');
@@ -211,27 +236,28 @@ function populateCampaignInfo(card, { name, imageUrl, remainingDays, description
   }
   
   const showExternalCommitments = Number.isFinite(externalCommitments) && externalCommitments > 0;
-  setTextAll(card, '.campaign-external-commitments', showExternalCommitments ? "€" + formatThousands(externalCommitments) : '-');
-  
+  setDealTermRow(card, '.campaign-external-commitments', showExternalCommitments, "€" + formatThousands(externalCommitments));
+
   const showGrowceanuTargetRound = Number.isFinite(growceanuTargetRound) && growceanuTargetRound > 0;
-  setTextAll(card, '.campaign-growceanu-target-round', showGrowceanuTargetRound ? "€" + formatThousands(growceanuTargetRound) : '-');
-  
+  setDealTermRow(card, '.campaign-growceanu-target-round', showGrowceanuTargetRound, "€" + formatThousands(growceanuTargetRound));
+
   const showAmountInvested = Number.isFinite(amountInvested) && amountInvested > 0;
-  setTextAll(card, '.campaign-amount-invested', showAmountInvested ? "€" + formatThousands(amountInvested) : '-');
-  
+  setDealTermRow(card, '.campaign-amount-invested', showAmountInvested, "€" + formatThousands(amountInvested));
+
   const showPreValuation = Number.isFinite(preMoneyValuation) && preMoneyValuation > 0;
-  setTextAll(card, '.campaign-valuation-pre-full', showPreValuation ? "€" + formatThousands(preMoneyValuation) : '-');
+  setDealTermRow(card, '.campaign-valuation-pre-full', showPreValuation, "€" + formatThousands(preMoneyValuation));
   setText(card, '.campaign-valuation', showPreValuation ? "€" + formatNumberToUnit(preMoneyValuation) : '');
   setHidden(card, '.campaign-box-valuation', !showPreValuation);
-    
+
   const showPostValuation = Number.isFinite(postMoneyValuation) && postMoneyValuation > 0;
-  setTextAll(card, '.campaign-valuation-post-full', showPostValuation ? "€" + formatThousands(postMoneyValuation) : '-');
-
-
+  setDealTermRow(card, '.campaign-valuation-post-full', showPostValuation, "€" + formatThousands(postMoneyValuation));
 
   const showMinimum = Number.isFinite(minimumTicket) && minimumTicket > 0;
-  setTextAll(card, '.campaign-min-invest', showMinimum ? "€" + formatThousands(minimumTicket) : '');
-  setHidden(card, '.campaign-min-invest', !showMinimum);
+  setDealTermRow(card, '.campaign-min-invest', showMinimum, "€" + formatThousands(minimumTicket));
+
+  // Target date is a deal-term row too: hide it when the round has no valid date.
+  const showTargetDate = typeof targetDate === 'string' && targetDate.trim() !== '';
+  setDealTermRow(card, '.campaign-target-date', showTargetDate, targetDate);
 
   const showMaxim = Number.isFinite(maxTicket) && maxTicket > 0;
   setTextAll(card, '.campaign-max-invest', showMaxim ? "€" + maxTicket : '');

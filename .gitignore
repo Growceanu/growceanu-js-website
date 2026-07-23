@@ -9,3 +9,4 @@ dist/
 
 # Controller bookkeeping (SDD ledger)
 .superpowers/
+.gstack/

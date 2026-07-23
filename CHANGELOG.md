@@ -3,6 +3,18 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.13 — 2026-07-23
+
+- `campaign.js` — deal-term rows with a zero/empty value now hide the whole row
+  (label + value) instead of rendering a "-" placeholder. Covers pre-money and
+  post-money valuation, minimum investment, external commitments, target round
+  for Growceanu, raised through Growceanu, and target date. Each is a
+  `.div-block-108` row; both the desktop `.dealtermscontent` table and the mobile
+  copy are hidden. Also hides the investors pill (`.campaign-box-investors`) when
+  a round has no investors yet. Live rounds are unchanged (all values > 0). Part
+  of enabling the campaign detail page for Campaign-preparation rounds (the card
+  link + backend detail endpoint for preparation rounds are tracked separately).
+
 ## v1.1.12 — 2026-07-20
 
 - `campaign.js` — `extractCid()` now extracts the first well-formed UUID from the

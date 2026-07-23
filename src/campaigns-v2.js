@@ -191,13 +191,19 @@ function populateCampaignBox(template, { name, imageUrl, remainingDays, descript
     setHiddenClass(card, '.campaign-box-closed', campaignOpen);
   }
 
-  // Openable cards (live + prep) get a brighter cover so they read as clickable;
-  // non-openable stay dark.
+  // Openable cards (live + prep) get a brighter cover so they read as
+  // clickable; non-openable coming-soon cards are grayscaled + dimmed so the
+  // openable ones clearly stand out.
   if (isOpenable) {
     const overlay = card.querySelector('.campaign-box-overlay-image');
     if (overlay) overlay.style.background = 'linear-gradient(to top, rgba(28,30,44,0.9) 0%, rgba(28,30,44,0.44) 46%, rgba(28,30,44,0.04) 100%)';
     const coverImg = card.querySelector('.campaign-image');
     if (coverImg) coverImg.style.filter = 'saturate(1.08) brightness(1.06)';
+  } else if (roundGroup == "coming_soon") {
+    const overlay = card.querySelector('.campaign-box-overlay-image');
+    if (overlay) overlay.style.background = 'rgba(18,20,29,0.82)';
+    const coverImg = card.querySelector('.campaign-image');
+    if (coverImg) coverImg.style.filter = 'grayscale(1) brightness(0.6)';
   }
 
 
@@ -354,6 +360,27 @@ async function renderRounds(container, template) {
       });
 
       fragment.appendChild(card);
+
+      // The list query returns no cover for some prep rounds (e.g. Urban Spaces),
+      // so the openable card would fall back to the placeholder. Pull the cover
+      // from the detail endpoint (which has it) and swap it in once loaded.
+      if (isOpenable && roundGroup === 'coming_soon' && !coverUrl && !roundImageUrl
+          && sanitizedId && sanitizedId.length <= 48) {
+        fetchJson(`campaign?id=${encodeURIComponent(sanitizedId)}&lang=${encodeURIComponent(isEnglish ? 'en' : locale)}&en=${isEnglish}`)
+          .then(function (data) {
+            const detailRound = data && Array.isArray(data.rounds) ? data.rounds[0] : null;
+            const detailCover = detailRound && Array.isArray(detailRound.cover)
+              && detailRound.cover[0] && typeof detailRound.cover[0].url === 'string'
+              ? detailRound.cover[0].url.trim() : '';
+            if (detailCover) {
+              const im = card.querySelector('.campaign-box-image img');
+              if (im) im.src = detailCover;
+              const box = card.querySelector('.campaign-box-image');
+              if (box) box.style.setProperty('--imgcampbox', `url(${detailCover})`);
+            }
+          })
+          .catch(function () {});
+      }
     }
   }
 

@@ -3,6 +3,13 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.21 — 2026-07-23
+
+- `videomodal.js` — muted mobile autoplay now shows a prominent "Tap for sound"
+  pill near the bottom of the modal; tapping it unmutes (and the pill
+  disappears). Wistia's own "Click for sound" hint is small/unreliable on mobile.
+  The pill is removed on unmute (by any means) and on close.
+
 ## v1.1.20 — 2026-07-23
 
 - `videomodal.js` — mobile autoplay nudge for iOS Safari. `silentAutoPlay`

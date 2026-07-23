@@ -17,6 +17,7 @@
   let lastFocus = null;
   let savedScrollY = 0;
   let currentVideo = null; // wistia player instance
+  let unmuteBtn = null;    // "Tap for sound" overlay shown on muted autoplay
   const loadedMedias = new Set();
   const modalSpeedMs = (() => {
     const raw = getComputedStyle(document.documentElement).getPropertyValue('--vm-speed').trim();
@@ -61,6 +62,38 @@
     div.style.height = '100%';
     div.setAttribute('data-wistia-id', videoId);
     return div;
+  }
+
+  // Muted autoplay (mobile) needs an obvious, easy-to-tap way to turn sound on.
+  // Wistia's own "Click for sound" hint is small/unreliable on mobile, so we add
+  // a big pill near the bottom of the (fullscreen) modal.
+  function createUnmuteButton() {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Tap for sound');
+    btn.innerHTML = '<span aria-hidden="true" style="font-size:18px;line-height:1">🔊</span><span>Tap for sound</span>';
+    btn.style.cssText = 'position:absolute;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:6;display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border:0;border-radius:999px;background:rgba(255,255,255,0.96);color:#14161f;font:600 15px/1 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,0.45);cursor:pointer;-webkit-tap-highlight-color:transparent;';
+    return btn;
+  }
+
+  function showUnmuteButton() {
+    if (unmuteBtn) return;
+    unmuteBtn = createUnmuteButton();
+    unmuteBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (currentVideo) {
+        try { currentVideo.unmute(); } catch (err) {}
+        try { currentVideo.play(); } catch (err) {}
+      }
+      removeUnmuteButton();
+    });
+    modal.appendChild(unmuteBtn);
+  }
+
+  function removeUnmuteButton() {
+    if (unmuteBtn && unmuteBtn.parentNode) unmuteBtn.parentNode.removeChild(unmuteBtn);
+    unmuteBtn = null;
   }
 
   function openModal({ videoId, title }) {
@@ -123,7 +156,10 @@
             if (isMobile) {
               try { video.mute(); } catch (e) {}
               try { video.play(); } catch (e) {}
+              showUnmuteButton();
             }
+            // Drop our button if the video is unmuted by any means.
+            try { video.bind('mutechange', function (muted) { if (!muted) removeUnmuteButton(); }); } catch (e) {}
 
             modal.classList.remove('is-playing');
 
@@ -176,6 +212,7 @@
       try { currentVideo.pause(); } catch(e) {}
       currentVideo = null;
     }
+    removeUnmuteButton();
     mount.innerHTML = '';
 
     if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();

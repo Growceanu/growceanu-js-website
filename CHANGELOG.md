@@ -3,6 +3,14 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.16 — 2026-07-23
+
+- `campaign.js` — the video preview/poster image now falls back to the REST
+  `cover` (`[{ url }]`) when a round has no `round_images` (e.g. a
+  Campaign-preparation round like Urban Spaces), instead of showing the dark
+  placeholder. Mirrors the fallback `campaigns-v2.js` already uses; rounds that
+  have `round_images` (e.g. Rayscape) are unchanged.
+
 ## v1.1.15 — 2026-07-23
 
 - `campaign.js` — the browser tab title is now set to the company name

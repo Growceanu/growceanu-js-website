@@ -98,7 +98,15 @@
         window._wq.push({
           id: videoId,
           options: {
-            autoPlay: true
+            autoPlay: true,
+            // Mobile blocks autoplay-with-sound outside a tap gesture (the
+            // player loads async), so it would stay paused. silentAutoPlay lets
+            // it autoplay muted (Wistia shows a "Click for sound" prompt), and
+            // playsinline keeps playback inside our fullscreen modal on iOS
+            // rather than handing off to the native player. Desktop is
+            // unaffected and still autoplays with sound.
+            silentAutoPlay: true,
+            playsinline: true
           },
           onReady: function(video) {
             currentVideo = video;

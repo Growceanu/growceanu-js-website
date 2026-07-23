@@ -3,6 +3,14 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.17 — 2026-07-23
+
+- `videomodal.js` — the video now autoplays on mobile too. Mobile browsers block
+  autoplay-with-sound outside a tap gesture (the Wistia player loads async), so
+  it stayed paused. Added `silentAutoPlay: true` (muted autoplay fallback, with
+  Wistia's "Click for sound" prompt) and `playsinline: true` (keeps playback
+  inside the fullscreen modal on iOS). Desktop still autoplays with sound.
+
 ## v1.1.16 — 2026-07-23
 
 - `campaign.js` — the video preview/poster image now falls back to the REST

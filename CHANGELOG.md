@@ -14,6 +14,13 @@ Webflow pins the major range `@1`.
   a round has no investors yet. Live rounds are unchanged (all values > 0). Part
   of enabling the campaign detail page for Campaign-preparation rounds (the card
   link + backend detail endpoint for preparation rounds are tracked separately).
+- `campaign.js` — the Type deal-term row (`.div-block-107`) now hides when the
+  round has no type set (empty or "-"), consistent with the other deal terms.
+- `campaign.js`, `campaigns-v2.js` — the Wistia video id is now parsed from a
+  full media URL (`https://<acct>.wistia.com/medias/<id>`) as well as from a bare
+  id. Previously a full URL was stripped to a garbage string that still passed
+  the modal's validator, so the play button appeared but the video never loaded
+  (e.g. Urban Spaces). Bare ids like Rayscape's are unchanged.
 
 ## v1.1.12 — 2026-07-20
 

@@ -3,6 +3,15 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.19 — 2026-07-23
+
+- `campaigns-v2.js` — non-openable coming-soon cards (Origin BCI, RongoDesign)
+  are now grayscaled + dimmed so the openable cards (Rayscape, Urban Spaces)
+  clearly stand out; before, the only difference was the "See more" label. Also,
+  when the list query returns no cover for an openable prep round (Urban Spaces),
+  the cover is pulled from the detail endpoint and swapped in, so the card shows
+  a real image instead of the placeholder.
+
 ## v1.1.18 — 2026-07-23
 
 - `campaigns-v2.js` — Campaign-preparation cards in the opportunities list now

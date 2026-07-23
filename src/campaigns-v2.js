@@ -77,6 +77,24 @@ function formatNumberToUnit(value) {
 	return `${value}`;
 }
 
+// `video_url` may be a bare Wistia media id ("cve4u971j4") or a full URL
+// ("https://<acct>.wistia.com/medias/<id>"). Extract the id from either.
+function parseWistiaId(video_url) {
+  if (typeof video_url !== 'string') return null;
+  const raw = video_url.trim();
+  if (!raw) return null;
+  let id = raw;
+  const medias = raw.match(/\/medias\/([A-Za-z0-9_-]+)/);
+  if (medias) {
+    id = medias[1];
+  } else if (raw.indexOf('/') !== -1) {
+    const path = raw.split(/[?#]/)[0].replace(/\/+$/, '');
+    id = path.slice(path.lastIndexOf('/') + 1);
+  }
+  id = id.replace(/[^0-9A-Za-z_-]/g, '');
+  return /^[A-Za-z0-9_-]{3,80}$/.test(id) ? id : null;
+}
+
 function populateCampaignBox(template, { name, imageUrl, remainingDays, description, amountInvested, amountInvestedPercent, preMoneyValuation, investorCount, raisingAmount, minimumTicket, videoId, displayTags, link, campaignOpen, campaignType, roundGroup }) {
 	const card = cloneMemberCard(template);
   
@@ -262,7 +280,7 @@ async function renderRounds(container, template) {
       const amountInvestedPercent = (amountInvested != null && amountInvested > 0 && externalCommitments > 0 && raisingAmount > 0) ? Math.round(((externalCommitments + amountInvested) / raisingAmount) * 100 * 10) / 10 : 0;
 
       const minimumTicket = typeof minimum_ticket === 'number' ? minimum_ticket : null;
-      const videoId = typeof video_url === 'string' ? video_url.toLowerCase().trim().replace(/[^0-9A-Za-z_-]/g, '') : null;
+      const videoId = parseWistiaId(video_url);
 
       let link = CAMPAIGN_URL_PREFIX;
       if (!isEnglish) link = "/" + locale + CAMPAIGN_URL_PREFIX_RO;

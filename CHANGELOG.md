@@ -3,6 +3,14 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.20 — 2026-07-23
+
+- `videomodal.js` — mobile autoplay nudge for iOS Safari. `silentAutoPlay`
+  config alone didn't reliably start the video on iOS (the async Wistia load
+  lands outside the tap gesture), so on mobile (iOS/Android) `onReady` now
+  explicitly calls `video.mute()` + `video.play()` — the muted playback mobile
+  allows. Desktop still autoplays with sound.
+
 ## v1.1.19 — 2026-07-23
 
 - `campaigns-v2.js` — non-openable coming-soon cards (Origin BCI, RongoDesign)

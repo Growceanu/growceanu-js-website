@@ -3,6 +3,13 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.14 — 2026-07-23
+
+- `videomodal.css` — on mobile (≤767px) the video modal now fills the whole
+  viewport (100vw × 100dvh, no side margins or fixed portrait ratio) instead of a
+  boxed portrait dialog, so tapping the video opens it edge-to-edge. `dvh` tracks
+  the mobile browser chrome, with `vh` as fallback. Desktop is unchanged.
+
 ## v1.1.13 — 2026-07-23
 
 - `campaign.js` — deal-term rows with a zero/empty value now hide the whole row

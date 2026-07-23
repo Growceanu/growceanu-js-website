@@ -3,6 +3,16 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.15 — 2026-07-23
+
+- `campaign.js` — the browser tab title is now set to the company name
+  (`startup.name`, falling back to the round name) instead of the static
+  "Campaign".
+- `videomodal.js` — the video now autoplays when the modal opens (`autoPlay:
+  true`; removed the on-open pause). Desktop plays with sound; on mobile the
+  browser may fall back to muted because the async Wistia load lands outside the
+  tap gesture.
+
 ## v1.1.14 — 2026-07-23
 
 - `videomodal.css` — on mobile (≤767px) the video modal now fills the whole

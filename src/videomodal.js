@@ -94,19 +94,18 @@
         mount.innerHTML = '';
         currentVideo = null;
 
-        // Configure Wistia (NO autoplay)
+        // Configure Wistia (autoplay on open)
         window._wq.push({
           id: videoId,
           options: {
-            autoPlay: false
+            autoPlay: true
           },
           onReady: function(video) {
             currentVideo = video;
 
-            // Ensure paused on open (paranoid-safe)
-            try { video.pause(); } catch(e) {}
-            
-            // Ensure starts NOT playing
+            // Autoplay on open. On mobile the browser may fall back to muted
+            // (esp. iOS), because the async Wistia load lands outside the tap
+            // gesture; desktop plays with sound.
             modal.classList.remove('is-playing');
 
             // When user hits play hide CTA

@@ -362,6 +362,13 @@ async function renderRound(container, cid) {
 			
     const displayName = typeof name === 'string' && name.trim() ? name : 'Untitled campaign';
 
+    // Set the browser tab title to the company name (round `name` is a fallback,
+    // since it can be a round label like "Pre-Seed" rather than the company).
+    const companyName = (startup && typeof startup === 'object' && typeof startup.name === 'string' && startup.name.trim())
+      ? startup.name.trim()
+      : displayName;
+    if (companyName) document.title = companyName;
+
     const rawDescription = typeof startup === 'string'
       ? startup
       : (typeof startup?.description === 'string' ? startup.description : '');

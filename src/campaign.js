@@ -355,6 +355,7 @@ async function renderRound(container, cid) {
     stage_id, 
     round_type,
     max_ticket,
+    cover,
     }] = rounds;
 
     const remainingDays = calculateRemainingDays(target_date);
@@ -390,11 +391,16 @@ async function renderRound(container, cid) {
         })()
       : '';
 
-    const imageUrl =
-      (Array.isArray(images)
-      && typeof images[0]?.image_url === 'string'
-      && (images[0].image_url.trim() ? images[0].image_url : 0))
-      || DEFAULT_IMAGE;
+    // Preview/poster image for the video box: round_images first, then the REST
+    // `cover` ([{ url }]) — some rounds (e.g. Campaign-preparation) have only a
+    // cover, no round_images — then the placeholder. Mirrors campaigns-v2.js.
+    const roundImageUrl = Array.isArray(images) && typeof images[0]?.image_url === 'string' && images[0].image_url.trim()
+      ? images[0].image_url
+      : '';
+    const coverUrl = Array.isArray(cover) && typeof cover[0]?.url === 'string' && cover[0].url.trim()
+      ? cover[0].url
+      : '';
+    const imageUrl = roundImageUrl || coverUrl || DEFAULT_IMAGE;
 
     let displayTags = [];
     if (typeof tags !== 'undefined') {

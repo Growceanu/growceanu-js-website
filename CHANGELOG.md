@@ -3,6 +3,26 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.2.0 — 2026-07-27
+
+- `campaign.css` — **new file.** Rich-text styling for the campaign "Idea"
+  content that `campaign.js` injects into `.campaign-long-description`. The
+  Webflow page CSS only styles `p` and `h3` there, but the API's `idea` HTML
+  emits `h2` section headings and `<ul class="highlights">` bullets, which fell
+  through to the global reset: headings with `margin-top: 0` (so "The Idea" sat
+  flush against the last Highlights bullet) and lists with no margins at all
+  (so the four one-bullet `highlights` lists rendered as a dense grey-dot
+  block). Adds section-heading and list spacing, and renders `.highlights` items
+  with the green ✓ marker used by the Flutter app's `HighlightsHtmlExtension`,
+  so web and app show the same Highlights treatment.
+
+  Requires a one-time Webflow change — add to the campaign page's custom code,
+  next to the existing `videomodal.min.css` link:
+
+  ```html
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Growceanu/growceanu-js-website@1/src/campaign.min.css">
+  ```
+
 ## v1.1.22 — 2026-07-27
 
 - `campaigns-v2.js` — **openable coming-soon cards are now derived from the API,

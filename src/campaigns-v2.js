@@ -20,21 +20,47 @@ const FOLLOWLINK = "https://app.growceanu.com/sign-up";
 const SEEMORE_TEXT = "See more";
 const SEEMORE_TEXT_RO = "Vezi detalii";
 
-// Openable = live rounds + Campaign-preparation rounds (a detail page is ready).
-// Live rounds are always openable. Among coming-soon rounds, only the ids listed
-// here open the detail page; the rest keep Follow -> sign-up. The campaigns-v2
-// API doesn't flag this per round yet, so list the prep round ids here — add ids
-// as campaigns enter preparation, or swap this Set for the API flag once it exists.
-const OPENABLE_PREP_IDS = new Set([
-  '8e061c71-f664-4ae0-81f4-04a6b8fe0851', // Urban Spaces
-]);
-
 async function fetchJson(endpoint) {
 	const response = await fetch(`${API_BASE_URL}${endpoint}`);
 	if (!response.ok) {
 		throw new Error(`Failed to fetch ${endpoint}: ${response.status}`);
 	}
 	return response.json();
+}
+
+function sanitizeRoundId(id) {
+  const sanitized = typeof id === 'string'
+    ? id.toLowerCase().trim().replace(/[^0-9A-Za-z_-]/g, '')
+    : '';
+  return sanitized.length <= 48 ? sanitized : '';
+}
+
+// Openable = a detail page exists for the round. Live rounds always have one.
+// Among coming-soon rounds only those in Campaign-preparation do, and the
+// `campaigns-v2` list carries no per-round flag saying which — so ask the detail
+// endpoint: `campaign?id=` returns the round when its page is ready and an empty
+// `rounds` array otherwise. One small request per coming-soon card (capped by
+// LIMITCOMINGSOON), all in parallel, resolved before render so no card flips
+// state after paint. Rounds that fail or 404 stay non-openable (Follow -> sign-up).
+// The response is kept because it also carries the cover the list omits.
+async function fetchOpenablePrepRounds(group, locale, isEnglish) {
+  if (!Array.isArray(group) || group.length === 0) return new Map();
+
+  const entries = await Promise.all(group.map(async function (round) {
+    const id = sanitizeRoundId(round?.id);
+    if (!id) return null;
+    try {
+      const data = await fetchJson(
+        `campaign?id=${encodeURIComponent(id)}&lang=${encodeURIComponent(isEnglish ? 'en' : locale)}&en=${isEnglish}`
+      );
+      const detailRound = data && Array.isArray(data.rounds) ? data.rounds[0] : null;
+      return detailRound ? [id, detailRound] : null;
+    } catch (e) {
+      return null;
+    }
+  }));
+
+  return new Map(entries.filter(Boolean));
 }
 
 function calculateRemainingDays(target_date) {
@@ -255,7 +281,10 @@ async function renderRounds(container, template) {
 	if (!roundGroups.some(([, group]) => Array.isArray(group) && group.length > 0)) {
 		return;
 	}
-  
+
+  // Which coming-soon rounds already have a detail page (see fetchOpenablePrepRounds).
+  const openablePrep = await fetchOpenablePrepRounds(data?.coming_soon_rounds, locale, isEnglish);
+
 	const fragment = document.createDocumentFragment();
 
   for (const [roundGroup, group] of roundGroups) {
@@ -276,15 +305,25 @@ async function renderRounds(container, template) {
         ? `${normalizedDescription.slice(0, 99)}...`
         : normalizedDescription;
 
+      const sanitizedId = sanitizeRoundId(id);
+
+      // Detail-endpoint payload for coming-soon rounds whose page is ready; also
+      // the openable signal (see fetchOpenablePrepRounds).
+      const prepDetail = roundGroup === 'coming_soon' ? openablePrep.get(sanitizedId) : null;
+
       // Campaign cover (REST `cover: [{ url }]`) is the primary image; fall back
-      // to the legacy round_images, then the placeholder.
+      // to the legacy round_images, then the placeholder. The list query returns
+      // no cover for some prep rounds (e.g. Urban Spaces) — the detail payload has it.
       const coverUrl = Array.isArray(cover) && typeof cover[0]?.url === 'string' && cover[0].url.trim()
         ? cover[0].url
+        : '';
+      const prepCoverUrl = Array.isArray(prepDetail?.cover) && typeof prepDetail.cover[0]?.url === 'string' && prepDetail.cover[0].url.trim()
+        ? prepDetail.cover[0].url
         : '';
       const roundImageUrl = Array.isArray(images) && typeof images[0]?.image_url === 'string' && images[0].image_url.trim()
         ? images[0].image_url
         : '';
-      const imageUrl = coverUrl || roundImageUrl || DEFAULT_IMAGE;
+      const imageUrl = coverUrl || prepCoverUrl || roundImageUrl || DEFAULT_IMAGE;
 
       // Tags live under startup.tags as { tag: { tag_translations: [{ tag }] } };
       // entries with an empty tag_translations array are untranslated for this locale -> skip.
@@ -317,18 +356,13 @@ async function renderRounds(container, template) {
       const minimumTicket = typeof minimum_ticket === 'number' ? minimum_ticket : null;
       const videoId = parseWistiaId(video_url);
 
-      const sanitizedId = typeof id === 'string'
-        ? id.toLowerCase().trim().replace(/[^0-9A-Za-z_-]/g, '')
-        : '';
-
-      // Openable = live rounds + Campaign-preparation rounds (detail page ready).
-      const isOpenable = roundGroup === 'live'
-        || (roundGroup === 'coming_soon' && OPENABLE_PREP_IDS.has(sanitizedId));
+      // Openable = live rounds + coming-soon rounds the detail endpoint served.
+      const isOpenable = roundGroup === 'live' || Boolean(prepDetail);
 
       let link = CAMPAIGN_URL_PREFIX;
       if (!isEnglish) link = "/" + locale + CAMPAIGN_URL_PREFIX_RO;
 
-      if (sanitizedId && sanitizedId.length <= 48) {
+      if (sanitizedId) {
         link += "?cid=" + sanitizedId;
       }
 
@@ -360,27 +394,6 @@ async function renderRounds(container, template) {
       });
 
       fragment.appendChild(card);
-
-      // The list query returns no cover for some prep rounds (e.g. Urban Spaces),
-      // so the openable card would fall back to the placeholder. Pull the cover
-      // from the detail endpoint (which has it) and swap it in once loaded.
-      if (isOpenable && roundGroup === 'coming_soon' && !coverUrl && !roundImageUrl
-          && sanitizedId && sanitizedId.length <= 48) {
-        fetchJson(`campaign?id=${encodeURIComponent(sanitizedId)}&lang=${encodeURIComponent(isEnglish ? 'en' : locale)}&en=${isEnglish}`)
-          .then(function (data) {
-            const detailRound = data && Array.isArray(data.rounds) ? data.rounds[0] : null;
-            const detailCover = detailRound && Array.isArray(detailRound.cover)
-              && detailRound.cover[0] && typeof detailRound.cover[0].url === 'string'
-              ? detailRound.cover[0].url.trim() : '';
-            if (detailCover) {
-              const im = card.querySelector('.campaign-box-image img');
-              if (im) im.src = detailCover;
-              const box = card.querySelector('.campaign-box-image');
-              if (box) box.style.setProperty('--imgcampbox', `url(${detailCover})`);
-            }
-          })
-          .catch(function () {});
-      }
     }
   }
 

@@ -5,12 +5,18 @@ Webflow pins the major range `@1`.
 
 ## v1.1.22 — 2026-07-27
 
-- `campaigns-v2.js` — the Urban Spaces BTR round was recreated in admin and got a
-  new id (`4a264985-…`, was `8e061c71-…`). The `OPENABLE_PREP_IDS` allowlist still
-  held the old id, so the card silently stopped being openable: grayscaled,
-  "Urmărește" → sign-up, no link to the campaign page. Allowlist updated to the
-  live id, plus a note that these are round ids and a recreated round un-opens
-  the card.
+- `campaigns-v2.js` — **openable coming-soon cards are now derived from the API,
+  not a hardcoded id list.** The `OPENABLE_PREP_IDS` allowlist is gone. Each
+  coming-soon round is probed against the detail endpoint before render
+  (`fetchOpenablePrepRounds`, all requests in parallel): `campaign?id=` returns
+  the round when its page is ready and `{"rounds":[]}` otherwise, which is
+  exactly the openable signal. The same response supplies the cover the list
+  query omits for some prep rounds, so the post-render cover swap is dropped.
+  This fixes Urban Spaces BTR disappearing as an openable card: the round was
+  recreated in admin and got a new id (`4a264985-…`, was `8e061c71-…`), which the
+  allowlist couldn't know about, so the card silently fell back to grayscale +
+  "Urmărește" → sign-up. Rounds without a detail page (Origin BCI, Pre-Seed) are
+  unaffected, and a failed probe degrades to non-openable.
 
 ## v1.1.21 — 2026-07-23
 

@@ -3,6 +3,11 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.2.1 — 2026-07-27
+
+- `campaign.css` — header comment said `Added: v1.9.0`; corrected to `v1.2.0`,
+  the release it actually shipped in. Comment only, no style changes.
+
 ## v1.2.0 — 2026-07-27
 
 - `campaign.css` — **new file.** Rich-text styling for the campaign "Idea"

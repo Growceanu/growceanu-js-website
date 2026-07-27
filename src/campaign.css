@@ -1,0 +1,66 @@
+/*!
+ * campaign.css — rich-text styling for the campaign "Idea" content
+ * Used on: Webflow campaign page (pairs with campaign.js)
+ * Added: v1.9.0
+ */
+
+/*
+ * campaign.js injects the API's `idea` HTML into `.campaign-long-description`.
+ * Webflow's page CSS only covers `p` and `h3` there, but the API now emits `h2`
+ * section headings and `ul class="highlights"` bullets, which fall through to
+ * the global reset: heading `margin-top: 0` and disc markers with no list
+ * margins. The result is a heading glued to the bullet above it and a Highlights
+ * block that renders as a dense grey-dot list instead of the app's checkmarks.
+ */
+
+/* Section headings need a lead-in gap; Webflow zeroes heading margin-top. */
+.campaign-long-description h2 {
+  margin-top: 40px;
+  margin-bottom: 12px;
+}
+
+.campaign-long-description > h2:first-child {
+  margin-top: 0;
+}
+
+/* Lists carry no margin from the reset, so consecutive lists — and any heading
+ * that follows one — run together. */
+.campaign-long-description ul,
+.campaign-long-description ol {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.campaign-long-description li {
+  margin-bottom: 8px;
+}
+
+/*
+ * Highlights. The API emits one `<ul class="highlights">` per bullet, so the
+ * blocks have to read as a single list: spacing comes from the `li` (which
+ * collapses out through the zero-margin `ul`), never from the `ul` itself.
+ * Marker mirrors the Flutter app's HighlightsHtmlExtension — green ✓, 20px gap
+ * after the glyph — so web and app show the same Highlights treatment.
+ */
+.campaign-long-description ul.highlights {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.campaign-long-description ul.highlights > li {
+  position: relative;
+  margin-bottom: 14px;
+  padding-left: 31px;
+}
+
+.campaign-long-description ul.highlights > li::before {
+  content: "\2713";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 11px;
+  color: #289f5f;
+  font-weight: 700;
+}

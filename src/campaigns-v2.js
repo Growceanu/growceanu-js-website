@@ -25,8 +25,11 @@ const SEEMORE_TEXT_RO = "Vezi detalii";
 // here open the detail page; the rest keep Follow -> sign-up. The campaigns-v2
 // API doesn't flag this per round yet, so list the prep round ids here — add ids
 // as campaigns enter preparation, or swap this Set for the API flag once it exists.
+// NOTE: these are ROUND ids, not startup ids — recreating a round in admin mints
+// a new id and silently un-opens the card. Verify against the live
+// `campaigns-v2` response when a card stops opening.
 const OPENABLE_PREP_IDS = new Set([
-  '8e061c71-f664-4ae0-81f4-04a6b8fe0851', // Urban Spaces
+  '4a264985-7842-45d5-a8c9-cd6c336df6f1', // Urban Spaces BTR (round recreated 2026-07; was 8e061c71-…)
 ]);
 
 async function fetchJson(endpoint) {

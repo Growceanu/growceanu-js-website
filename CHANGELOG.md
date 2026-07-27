@@ -3,6 +3,15 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.1.22 — 2026-07-27
+
+- `campaigns-v2.js` — the Urban Spaces BTR round was recreated in admin and got a
+  new id (`4a264985-…`, was `8e061c71-…`). The `OPENABLE_PREP_IDS` allowlist still
+  held the old id, so the card silently stopped being openable: grayscaled,
+  "Urmărește" → sign-up, no link to the campaign page. Allowlist updated to the
+  live id, plus a note that these are round ids and a recreated round un-opens
+  the card.
+
 ## v1.1.21 — 2026-07-23
 
 - `videomodal.js` — muted mobile autoplay now shows a prominent "Tap for sound"

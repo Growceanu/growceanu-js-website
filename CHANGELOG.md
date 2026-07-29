@@ -3,6 +3,19 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.2.6 — 2026-07-29
+
+- `campaign.js`, `campaign.css` — the hero Raising box now spans the full row on
+  mobile when the Valuation box beside it is hidden (pre-money is 0 or absent).
+  The hero wrapper is a two-column grid below 768px, so hiding Valuation left
+  Raising at 160px of a 350px row with dead space beside it. `campaign.js` adds
+  `.campaign-box-raising-full` whenever it hides `.campaign-box-valuation`, and
+  `campaign.css` gives that class `grid-column: 1 / -1`. From tablet up the
+  wrapper is flex, where `grid-column` is inert, so the rule needs no breakpoint
+  guard and desktop is untouched (measured: 549px and 449px unchanged). Rounds
+  that do show a valuation never get the class. Result matches the campaign
+  cards: amount left, percent chip right.
+
 ## v1.2.5 — 2026-07-29
 
 - `campaign.js` — new Deal Terms row for founder commitments

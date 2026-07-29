@@ -13,6 +13,18 @@
  * block that renders as a dense grey-dot list instead of the app's checkmarks.
  */
 
+/*
+ * Hero Raising box, when campaign.js hides the Valuation box beside it
+ * (pre-money is 0 or absent). The hero wrapper is a two-column grid on mobile
+ * and flex from tablet up, so `grid-column` widens Raising exactly where the
+ * empty Valuation track would strand it and is inert everywhere else — no
+ * breakpoint guard needed. Result matches the campaign cards: amount left,
+ * percent chip right.
+ */
+.campaign-box-raising.campaign-box-raising-full {
+  grid-column: 1 / -1;
+}
+
 /* Section headings need a lead-in gap; Webflow zeroes heading margin-top. */
 .campaign-long-description h2 {
   margin-top: 40px;

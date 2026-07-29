@@ -283,6 +283,13 @@ function populateCampaignInfo(card, { name, imageUrl, remainingDays, description
   setText(card, '.campaign-valuation', showPreValuation ? "€" + formatNumberToUnit(preMoneyValuation) : '');
   setHidden(card, '.campaign-box-valuation', !showPreValuation);
 
+  // Hiding the Valuation box leaves its grid track behind: on mobile the hero
+  // wrapper is a two-column grid, so Raising would sit at half width with dead
+  // space beside it. Flag it to span the full row (see campaign.css) — amount
+  // left, percent chip right, the same treatment the campaign cards use.
+  const raisingWrapper = card.querySelector('.campaign-box-raising');
+  if (raisingWrapper) raisingWrapper.classList.toggle('campaign-box-raising-full', !showPreValuation);
+
   const showPostValuation = Number.isFinite(postMoneyValuation) && postMoneyValuation > 0;
   setDealTermRow(card, '.campaign-valuation-post-full', showPostValuation, "€" + formatThousands(postMoneyValuation));
 

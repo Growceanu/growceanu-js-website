@@ -3,6 +3,16 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.2.5 — 2026-07-29
+
+- `campaign.js` — new Deal Terms row for founder commitments
+  (`.campaign-founders-commitments`), populated from the `founders_commitments`
+  API field. Like every other deal term, the row is hidden when the value is
+  zero or absent rather than rendering "€0", so it only appears on rounds that
+  actually have founder commitments. The Webflow element does not exist yet;
+  until it is added the code is a clean no-op, because `setDealTermRow` does
+  nothing when its selector matches no node.
+
 ## v1.2.4 — 2026-07-29
 
 - `campaign.js`, `campaigns-v2.js` — the raising percentage now counts founder

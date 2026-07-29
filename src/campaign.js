@@ -353,6 +353,7 @@ async function renderRound(container, cid) {
     raising_amount, 
     pre_money_valuation, post_money_valuation,
     external_commitments,
+    founders_commitments,
     growceanu_target_round,
     idea, 
     id, 
@@ -436,14 +437,20 @@ async function renderRound(container, cid) {
     const preMoneyValuation = typeof pre_money_valuation === 'number' ? pre_money_valuation : null;
     const postMoneyValuation = typeof post_money_valuation === 'number' ? post_money_valuation : null;
     const externalCommitments = typeof external_commitments === 'number' ? external_commitments : null;
+    const foundersCommitments = typeof founders_commitments === 'number' ? founders_commitments : null;
     const growceanuTargetRound = typeof growceanu_target_round === 'number' ? growceanu_target_round : null;
 
 
-    // Progress = external commitments + what has been invested on the platform.
-    // Either side may be 0/null (a round can be fully backed by external
+    // Round progress ("procent atingere tinta runda"), per the KIIS sheet:
+    //   amount raised = founder commitments + external commitments + raised on Growceanu
+    //   percent       = amount raised / total round value (raising_amount)
+    // raising_amount is required to equal founders + external + growceanu_target_round
+    // (a data-entry rule on the KIIS sheet — without it the percent can never
+    // reach 100%). Any term may be 0/null (a round can be fully backed by
     // commitments before the first platform investment lands), so only
     // raisingAmount gates the calculation.
-    const committedAmount = (Number.isFinite(externalCommitments) ? externalCommitments : 0)
+    const committedAmount = (Number.isFinite(foundersCommitments) ? foundersCommitments : 0)
+      + (Number.isFinite(externalCommitments) ? externalCommitments : 0)
       + (Number.isFinite(amountInvested) ? amountInvested : 0);
     const amountInvestedPercent = raisingAmount > 0
       ? Math.round((committedAmount / raisingAmount) * 100 * 10) / 10

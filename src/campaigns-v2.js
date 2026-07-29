@@ -299,7 +299,7 @@ async function renderRounds(container, template) {
   for (const [roundGroup, group] of roundGroups) {
     if (!Array.isArray(group) || group.length === 0) continue;
 
-    for (const { name, cover, round_images: images, target_date, startup, minimum_ticket, round_totals, round_investors_aggregate, video_url, id, raising_amount, pre_money_valuation, external_commitments, stage_id, round_type } of group) {
+    for (const { name, cover, round_images: images, target_date, startup, minimum_ticket, round_totals, round_investors_aggregate, video_url, id, raising_amount, pre_money_valuation, external_commitments, founders_commitments, stage_id, round_type } of group) {
 
       const remainingDays = calculateRemainingDays(target_date);
         
@@ -359,12 +359,18 @@ async function renderRounds(container, template) {
       const raisingAmount = typeof raising_amount === 'number' ? raising_amount : 0;  
       const preMoneyValuation = typeof pre_money_valuation === 'number' ? pre_money_valuation : null;
       const externalCommitments = typeof external_commitments === 'number' ? external_commitments : null;
-      
-      // Progress = external commitments + what has been invested on the platform.
-      // Either side may be 0/null (a round can be fully backed by external
+      const foundersCommitments = typeof founders_commitments === 'number' ? founders_commitments : null;
+
+      // Round progress ("procent atingere tinta runda"), per the KIIS sheet:
+      //   amount raised = founder commitments + external commitments + raised on Growceanu
+      //   percent       = amount raised / total round value (raising_amount)
+      // raising_amount is required to equal founders + external + growceanu_target_round
+      // (a data-entry rule on the KIIS sheet — without it the percent can never
+      // reach 100%). Any term may be 0/null (a round can be fully backed by
       // commitments before the first platform investment lands), so only
       // raisingAmount gates the calculation. Mirrors campaign.js.
-      const committedAmount = (Number.isFinite(externalCommitments) ? externalCommitments : 0)
+      const committedAmount = (Number.isFinite(foundersCommitments) ? foundersCommitments : 0)
+        + (Number.isFinite(externalCommitments) ? externalCommitments : 0)
         + (Number.isFinite(amountInvested) ? amountInvested : 0);
       const amountInvestedPercent = raisingAmount > 0
         ? Math.round((committedAmount / raisingAmount) * 100 * 10) / 10

@@ -167,7 +167,7 @@ function populateCampaignBox(template, { name, imageUrl, remainingDays, descript
     setHidden(card, '.campaign-box-investors', true);
     // Coming-soon rounds have no funding progress yet: hide the whole raising
     // wrapper (the "Raising" label + amount + percent). Valuation is hidden
-    // below via showPreValuation.
+    // below for every card, coming-soon or not.
     setHidden(card, '.campaign-box-raising', true);
   }
 
@@ -191,9 +191,14 @@ function populateCampaignBox(template, { name, imageUrl, remainingDays, descript
     setHidden(card, '.campaign-box-labels');
   }
   
-  const showPreValuation = roundGroup != "coming_soon" && Number.isFinite(preMoneyValuation) && preMoneyValuation > 0;
-  setText(card, '.campaign-valuation', showPreValuation ? "€" + formatNumberToUnit(preMoneyValuation) : '');
-  setHidden(card, '.campaign-box-valuation', !showPreValuation);
+  // Valuation is no longer shown on the listing cards (home + /opportunities).
+  // It still appears on the campaign detail page — hero box and the Deal Terms
+  // pre/post-money rows, both driven by campaign.js. The Webflow template keeps
+  // shipping `.campaign-box-valuation`, so hide it unconditionally and leave the
+  // value empty; cards then use the same full-width Raising layout that rounds
+  // without a valuation already had.
+  setText(card, '.campaign-valuation', '');
+  setHidden(card, '.campaign-box-valuation', true);
 
   const showMinimum = Number.isFinite(minimumTicket) && minimumTicket > 0;
   setText(card, '.campaign-box-button-minimum-value', showMinimum ? minimumTicket : '');

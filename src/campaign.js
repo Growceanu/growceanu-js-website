@@ -212,7 +212,7 @@ function formatThousands(value) {
   return (isNegative ? '-' : '') + result;
 }
 
-function populateCampaignInfo(card, { name, imageUrl, remainingDays, description, amountInvested, amountInvestedPercent, preMoneyValuation, postMoneyValuation, externalCommitments, growceanuTargetRound, investorCount, raisingAmount, minimumTicket, maxTicket, videoId, displayTags, link, longDescription, campaignOpen, campaignType, targetDate }) {
+function populateCampaignInfo(card, { name, imageUrl, remainingDays, description, amountInvested, amountInvestedPercent, preMoneyValuation, postMoneyValuation, foundersCommitments, externalCommitments, growceanuTargetRound, investorCount, raisingAmount, minimumTicket, maxTicket, videoId, displayTags, link, longDescription, campaignOpen, campaignType, targetDate }) {
 	
   const img = card.querySelector('.campaign-box-image img');
   if (img) img.src = imageUrl || DEFAULT_IMAGE;
@@ -262,6 +262,13 @@ function populateCampaignInfo(card, { name, imageUrl, remainingDays, description
     setHidden(card, '.campaign-box-labels');
   }
   
+  // Founder commitments sit above external commitments on the KIIS sheet; like
+  // every other deal term, a zero/absent value hides the whole row rather than
+  // rendering "€0". Harmless before `.campaign-founders-commitments` exists in
+  // Webflow — setDealTermRow no-ops when the selector matches nothing.
+  const showFoundersCommitments = Number.isFinite(foundersCommitments) && foundersCommitments > 0;
+  setDealTermRow(card, '.campaign-founders-commitments', showFoundersCommitments, "€" + formatThousands(foundersCommitments));
+
   const showExternalCommitments = Number.isFinite(externalCommitments) && externalCommitments > 0;
   setDealTermRow(card, '.campaign-external-commitments', showExternalCommitments, "€" + formatThousands(externalCommitments));
 
@@ -482,8 +489,9 @@ async function renderRound(container, cid) {
       amountInvestedPercent,
       preMoneyValuation, 
       postMoneyValuation,
-      externalCommitments, 
-      growceanuTargetRound, 
+      foundersCommitments,
+      externalCommitments,
+      growceanuTargetRound,
       investorCount, 
       raisingAmount,
       minimumTicket,

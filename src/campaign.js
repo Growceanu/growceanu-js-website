@@ -229,6 +229,10 @@ function populateCampaignInfo(card, { name, imageUrl, remainingDays, description
     ['.campaign-box-investors-count', investorCount]
   ].forEach(([sel, val]) => setText(card, sel, val));
 
+  // A 0% chip carries no information (no commitments and no investments yet) —
+  // hide it instead of rendering "0%" next to the raising amount.
+  setHidden(card, '.campaign-raising-percent', !(Number.isFinite(amountInvestedPercent) && amountInvestedPercent > 0));
+
   setTextAll(card, '.campaign-title', name);
 
   // Type is a deal-term row (.div-block-107): hide it when empty or "-"
@@ -435,7 +439,15 @@ async function renderRound(container, cid) {
     const growceanuTargetRound = typeof growceanu_target_round === 'number' ? growceanu_target_round : null;
 
 
-    const amountInvestedPercent = (amountInvested != null && amountInvested > 0 && externalCommitments > 0 && raisingAmount > 0) ? Math.round(((externalCommitments + amountInvested) / raisingAmount) * 100 * 10) / 10 : 0;
+    // Progress = external commitments + what has been invested on the platform.
+    // Either side may be 0/null (a round can be fully backed by external
+    // commitments before the first platform investment lands), so only
+    // raisingAmount gates the calculation.
+    const committedAmount = (Number.isFinite(externalCommitments) ? externalCommitments : 0)
+      + (Number.isFinite(amountInvested) ? amountInvested : 0);
+    const amountInvestedPercent = raisingAmount > 0
+      ? Math.round((committedAmount / raisingAmount) * 100 * 10) / 10
+      : 0;
 
     const minimumTicket = typeof minimum_ticket === 'number' ? minimum_ticket : null;
     const maxTicket = typeof max_ticket === 'number' ? max_ticket : null;

@@ -3,6 +3,17 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.2.3 — 2026-07-29
+
+- `campaigns-v2.js` — the Valuation box is no longer rendered on the campaign
+  cards (home "Current Opportunities" and `/opportunities`). `.campaign-valuation`
+  is left empty and `.campaign-box-valuation` is hidden unconditionally, so every
+  card uses the full-width Raising layout that rounds without a valuation already
+  had. The `pre_money_valuation` data is still read from the API and passed
+  through, so restoring the box is a one-line change. Valuation is unchanged on
+  the campaign detail page (`campaign.js`): the hero box and the Deal Terms
+  pre/post-money rows still show it.
+
 ## v1.2.2 — 2026-07-29
 
 - `campaign.js`, `campaigns-v2.js` — the raising percentage no longer requires a

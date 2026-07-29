@@ -3,6 +3,21 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.2.4 — 2026-07-29
+
+- `campaign.js`, `campaigns-v2.js` — the raising percentage now counts founder
+  commitments. New formula, matching the KIIS sheet:
+  `(founders_commitments + external_commitments + raised on Growceanu) / raising_amount`.
+  `founders_commitments` is a new API field (already served by both the
+  `campaign` and `campaigns-v2` endpoints, `null` on every round at the time of
+  this release), so output is unchanged until the value is populated in the
+  database. Without this change, moving a round's commitments into
+  `founders_commitments` would have dropped its percentage to 0% — e.g. Urban
+  Spaces BTR shows 84.6% both before and after the move only with the new
+  formula. `raising_amount` stays the denominator; the KIIS sheet requires it to
+  equal `founders_commitments + external_commitments + growceanu_target_round`,
+  otherwise the percentage can never reach 100%.
+
 ## v1.2.3 — 2026-07-29
 
 - `campaigns-v2.js` — the Valuation box is no longer rendered on the campaign

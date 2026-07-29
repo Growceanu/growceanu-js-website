@@ -3,6 +3,26 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.2.2 — 2026-07-29
+
+- `campaign.js`, `campaigns-v2.js` — the raising percentage no longer requires a
+  platform investment to be shown. The old guard demanded
+  `amountInvested > 0 && externalCommitments > 0`, so a round backed entirely by
+  external commitments displayed `0%` until the first investment landed on the
+  platform (Urban Spaces BTR: €5,5M external of a €6,5M round, shown as `0%`
+  instead of `84,6%`). Progress is now
+  `(external_commitments + amount_invested) / raising_amount`, with either term
+  treated as `0` when missing; only `raising_amount > 0` gates the calculation.
+- `campaign.js`, `campaigns-v2.js` — the `.campaign-raising-percent` chip is
+  hidden when the percentage is `0` (no commitments and no investments yet,
+  typically Campaign-preparation and coming-soon rounds) instead of rendering
+  a `0%` badge next to the raising amount.
+
+## v1.2.1 — 2026-07-27
+
+- `campaign.css` — header comment said `Added: v1.9.0`; corrected to `v1.2.0`,
+  the release it actually shipped in. Comment only, no style changes.
+
 ## v1.2.0 — 2026-07-27
 
 - `campaign.css` — **new file.** Rich-text styling for the campaign "Idea"

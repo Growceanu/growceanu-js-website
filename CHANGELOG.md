@@ -3,6 +3,29 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.4.0 — 2026-08-01
+
+- `campaign.css` — cover the full block vocabulary FAUR's Idea editor can
+  produce, and give ordinary lists ordinary markers again. v1.3.0 was written
+  against the seeded Rayscape copy, which was pasted into the Webflow CMS field
+  by hand rather than pushed from FAUR; the real contract is narrower and
+  known. `MultilingualRichTextEditor.vue` runs TinyMCE with a hard
+  `valid_elements` whitelist — `p, br, hr, strong/b, em/i,
+  ul[class<highlights], ol, li, blockquote, h2, h3, a[!href|target|rel],
+  div[!class<callout]` — and `functions/webflow/mapCampaign.js` writes that
+  HTML into the CMS field verbatim, so `blockquote`, `div.callout` and
+  `ul.highlights` are the three special blocks, a bare `ul`/`ol` is an ordinary
+  list, and `div` never appears except as a callout. The green ✓ is now scoped
+  to `ul.highlights`; plain lists get disc and decimal markers, with the indent
+  reserved as padding so Webflow's `overflow: hidden` on `.w-richtext ul`
+  cannot clip them. `blockquote` and `div.callout` are styled to mirror the
+  Flutter app (`custom_html_widget.dart`, `callout_html_extension.dart`) so the
+  two investor-facing surfaces match; FAUR's editor preview uses the Ant Design
+  palette, which is deliberately not copied. `blockquote` also resets the
+  site's display pull-quote treatment (28px, centred, IBM Plex Mono) to body
+  copy — scoped to the Idea container, so pull-quotes elsewhere are untouched.
+  `h2` is handled alongside `h3`; the editor offers both.
+
 ## v1.3.0 — 2026-08-01
 
 - `campaign.css` — style the "Idea" tab on the CMS campaign page

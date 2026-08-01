@@ -81,23 +81,36 @@
 /* ---------------------------------------------------------------------------
  * CMS campaign page — /campaigns/<slug>
  *
- * The CMS template renders the same `.campaign-long-description` container, but
- * fills it from a Webflow Rich Text field instead of campaign.js, so the markup
- * is different: section headings arrive as `h3` (wrapped in `em`), body copy as
- * `div` rather than `p`, and bullets as a plain `ul` with no `.highlights`
- * class. Nothing below can reach the campaign.js page — it renders no
- * `.w-richtext` wrapper at all.
+ * Same `.campaign-long-description` container, but filled from a Webflow Rich
+ * Text field instead of campaign.js. Nothing below can reach the campaign.js
+ * page: it renders no `.w-richtext` wrapper at all.
  *
- * Everything the field carries also arrives with inline styles from the paste
- * (`margin: 4px 0; padding: 0; color: #1d1c1d`), which beat class selectors.
- * Hence `!important` throughout. Only spacing and colour are overridden; the
- * tags themselves are FAUR's, so `h3` stays a heading and `em` stays italic.
+ * The vocabulary is fixed and known. FAUR's Idea editor is TinyMCE with a hard
+ * whitelist (`valid_elements` in MultilingualRichTextEditor.vue):
+ *
+ *   p, br, hr, strong/b, em/i, ul[class<highlights], ol, li, blockquote,
+ *   h2, h3, a[!href|target|rel], div[!class<callout]
+ *
+ * and `functions/webflow/mapCampaign.js` writes that HTML into the CMS field
+ * verbatim. So `blockquote`, `div.callout` and `ul.highlights` are the three
+ * special blocks an editor can produce, a bare `ul`/`ol` is an ordinary list,
+ * and `div` never appears except as a callout.
+ *
+ * Presentation mirrors the Flutter app (`custom_html_widget.dart`,
+ * `callout_html_extension.dart`, `highlights_html_extension.dart`) so the two
+ * investor-facing surfaces match. FAUR's own editor preview uses the Ant
+ * Design palette, which is deliberately not copied here.
  * ------------------------------------------------------------------------- */
 
 /*
- * Safety net for tags FAUR has not emitted yet. `:where()` keeps this at zero
- * specificity so every rule below wins — without it the `[style]` selector
- * outranks the bare type selectors and silently zeroes all of their spacing.
+ * `style` is not in the whitelist above, so anything carrying one was pasted
+ * straight into the Webflow CMS field rather than coming through FAUR — as the
+ * seeded Rayscape copy was, with `margin: 4px 0; color: #1d1c1d` on every node.
+ * Inline styles beat class selectors, hence `!important` from here down.
+ *
+ * `:where()` keeps this reset at zero specificity so every rule after it still
+ * wins; written as a plain `[style]` selector it outranks the type selectors
+ * below and silently zeroes all of their spacing.
  */
 .campaign-long-description .w-richtext :where([style]) {
   margin: 0 !important;
@@ -106,6 +119,7 @@
 }
 
 /* Section headings: lead-in gap above, tight to the copy they introduce. */
+.campaign-long-description .w-richtext h2,
 .campaign-long-description .w-richtext h3 {
   margin: 32px 0 8px !important;
   padding: 0 !important;
@@ -116,36 +130,51 @@
   margin-top: 0 !important;
 }
 
-/* Body copy arrives as `div`, so it carries none of the usual paragraph margin. */
-.campaign-long-description .w-richtext div {
+/* Body copy. `div` is here only for hand-pasted content; from FAUR it is `p`. */
+.campaign-long-description .w-richtext p,
+.campaign-long-description .w-richtext div:not(.callout) {
   margin: 0 0 12px !important;
   padding: 0 !important;
   color: inherit !important;
 }
 
 /*
- * Webflow gives `.w-richtext ul` `overflow: hidden`, and the paste sets
- * `list-style-position: outside` with no padding — so the native marker is
- * drawn outside the list box and clipped away, leaving bullets invisible.
- * Draw our own inside the content box instead, matching `ul.highlights` above
- * and the Flutter app's HighlightsHtmlExtension.
+ * Ordinary lists keep ordinary markers. Webflow gives `.w-richtext ul`
+ * `overflow: hidden`, so an outside marker with no padding is drawn beyond the
+ * list box and clipped away — which is why the seeded bullets rendered as bare
+ * indented text. Reserving the indent as padding puts the marker back inside
+ * the box, where nothing can clip it.
  */
 .campaign-long-description .w-richtext ul,
 .campaign-long-description .w-richtext ol {
   margin: 0 0 16px !important;
-  padding: 0 !important;
+  padding: 0 0 0 24px !important;
   overflow: visible;
 }
 
-.campaign-long-description .w-richtext ul > li {
-  position: relative;
-  margin: 0 0 14px !important;
-  padding: 0 0 0 31px !important;
+.campaign-long-description .w-richtext li {
+  margin: 0 0 8px !important;
+  padding: 0 !important;
   color: inherit !important;
+}
+
+/*
+ * Highlights — the editor's checkmark list of selling points. Marker matches
+ * the Flutter HighlightsHtmlExtension: green ✓, 20px gap after the glyph.
+ */
+.campaign-long-description .w-richtext ul.highlights {
+  padding-left: 0 !important;
   list-style: none !important;
 }
 
-.campaign-long-description .w-richtext ul > li::before {
+.campaign-long-description .w-richtext ul.highlights > li {
+  position: relative;
+  margin: 0 0 14px !important;
+  padding: 0 0 0 31px !important;
+  list-style: none !important;
+}
+
+.campaign-long-description .w-richtext ul.highlights > li::before {
   content: "\2713";
   position: absolute;
   top: 0;
@@ -153,4 +182,45 @@
   width: 11px;
   color: #289f5f;
   font-weight: 700;
+}
+
+/*
+ * Quote — Flutter draws it as an italic rule-left block in muted grey, and so
+ * does FAUR's editor preview. The site's own `blockquote` is a display
+ * pull-quote (28px, centred, IBM Plex Mono), which is far too heavy for a
+ * paragraph inside the Idea body — it wraps a two-line quote into three
+ * centred lines and breaks the reading rhythm. Reset to body copy here; the
+ * rule and the italic already read as a quote. Scoped to the Idea container,
+ * so pull-quotes elsewhere on the page keep the site treatment.
+ */
+.campaign-long-description .w-richtext blockquote {
+  margin: 0 0 16px !important;
+  padding: 2px 0 2px 12px !important;
+  border-left: 3px solid rgba(0, 0, 255, 0.3);
+  color: #494b5b !important;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  text-align: left;
+  font-style: italic;
+}
+
+/* Callout — Flutter draws it as a grey card with a solid blue rule at the left. */
+.campaign-long-description .w-richtext .callout {
+  margin: 0 0 16px !important;
+  padding: 12px 14px !important;
+  border-left: 4px solid #0000ff;
+  border-radius: 10px;
+  background-color: #eaeef4;
+  color: inherit !important;
+}
+
+.campaign-long-description .w-richtext .callout > :last-child {
+  margin-bottom: 0 !important;
+}
+
+.campaign-long-description .w-richtext hr {
+  margin: 24px 0 !important;
+  border: 0;
+  border-top: 1px solid #d9dce5;
 }

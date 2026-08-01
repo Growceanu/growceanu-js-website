@@ -1,6 +1,7 @@
 /*!
  * campaign.css — rich-text styling for the campaign "Idea" content
- * Used on: Webflow campaign page (pairs with campaign.js)
+ * Used on: Webflow campaign pages — /campaign/?cid=… (pairs with campaign.js)
+ *          and the CMS template /campaigns/<slug> (no JS, Webflow Rich Text)
  * Added: v1.2.0
  */
 
@@ -68,6 +69,83 @@
 }
 
 .campaign-long-description ul.highlights > li::before {
+  content: "\2713";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 11px;
+  color: #289f5f;
+  font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
+ * CMS campaign page — /campaigns/<slug>
+ *
+ * The CMS template renders the same `.campaign-long-description` container, but
+ * fills it from a Webflow Rich Text field instead of campaign.js, so the markup
+ * is different: section headings arrive as `h3` (wrapped in `em`), body copy as
+ * `div` rather than `p`, and bullets as a plain `ul` with no `.highlights`
+ * class. Nothing below can reach the campaign.js page — it renders no
+ * `.w-richtext` wrapper at all.
+ *
+ * Everything the field carries also arrives with inline styles from the paste
+ * (`margin: 4px 0; padding: 0; color: #1d1c1d`), which beat class selectors.
+ * Hence `!important` throughout. Only spacing and colour are overridden; the
+ * tags themselves are FAUR's, so `h3` stays a heading and `em` stays italic.
+ * ------------------------------------------------------------------------- */
+
+/*
+ * Safety net for tags FAUR has not emitted yet. `:where()` keeps this at zero
+ * specificity so every rule below wins — without it the `[style]` selector
+ * outranks the bare type selectors and silently zeroes all of their spacing.
+ */
+.campaign-long-description .w-richtext :where([style]) {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+
+/* Section headings: lead-in gap above, tight to the copy they introduce. */
+.campaign-long-description .w-richtext h3 {
+  margin: 32px 0 8px !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+
+.campaign-long-description .w-richtext > :first-child {
+  margin-top: 0 !important;
+}
+
+/* Body copy arrives as `div`, so it carries none of the usual paragraph margin. */
+.campaign-long-description .w-richtext div {
+  margin: 0 0 12px !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+
+/*
+ * Webflow gives `.w-richtext ul` `overflow: hidden`, and the paste sets
+ * `list-style-position: outside` with no padding — so the native marker is
+ * drawn outside the list box and clipped away, leaving bullets invisible.
+ * Draw our own inside the content box instead, matching `ul.highlights` above
+ * and the Flutter app's HighlightsHtmlExtension.
+ */
+.campaign-long-description .w-richtext ul,
+.campaign-long-description .w-richtext ol {
+  margin: 0 0 16px !important;
+  padding: 0 !important;
+  overflow: visible;
+}
+
+.campaign-long-description .w-richtext ul > li {
+  position: relative;
+  margin: 0 0 14px !important;
+  padding: 0 0 0 31px !important;
+  color: inherit !important;
+  list-style: none !important;
+}
+
+.campaign-long-description .w-richtext ul > li::before {
   content: "\2713";
   position: absolute;
   top: 0;

@@ -3,6 +3,28 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.3.0 — 2026-08-01
+
+- `campaign.css` — style the "Idea" tab on the CMS campaign page
+  (`/campaigns/<slug>`). That template reuses the `.campaign-long-description`
+  container but fills it from a Webflow Rich Text field instead of
+  `campaign.js`, so the markup differs: section headings arrive as `h3` wrapped
+  in `em`, body copy as `div` rather than `p`, and bullets as a plain `ul` with
+  no `.highlights` class — none of which the existing rules matched. Three
+  defects followed. Every node also carries inline styles from the paste
+  (`margin: 4px 0; padding: 0; color: #1d1c1d`), which crushed the vertical
+  rhythm and beat any class selector, so the new rules use `!important`; the
+  `:where([style])` safety net is deliberately zero-specificity so the typed
+  rules below it still win. Webflow gives `.w-richtext ul` `overflow: hidden`
+  while the paste sets `list-style-position: outside` with no padding, so
+  markers were drawn outside the list box and clipped — bullets rendered as
+  bare indented text; they now use the same green ✓ at 31px as
+  `ul.highlights` and the Flutter app. Spacing and colour are overridden, the
+  tags are not: `h3` stays a heading and `em` stays italic, matching what FAUR
+  sends. All rules are scoped to `.campaign-long-description .w-richtext`,
+  which the `campaign.js` page never renders — verified zero matching elements
+  there, so it is untouched.
+
 ## v1.2.6 — 2026-07-29
 
 - `campaign.js`, `campaign.css` — the hero Raising box now spans the full row on

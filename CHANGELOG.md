@@ -3,6 +3,24 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.4.1 — 2026-08-02
+
+- `videomodal.js` — the video now starts with sound on desktop. It had been
+  starting muted everywhere: `silentAutoPlay: true` mutes unconditionally, not
+  only where the browser requires it, so a desktop viewer got `muted: true`
+  with `volume: 1` — which reads as a broken video rather than a muted one. The
+  old comment claimed desktop "still autoplays with sound"; measured on
+  staging, it did not. Desktop now passes `silentAutoPlay: 'allow'`, which asks
+  for sound and falls back to muted only if the browser refuses. Fixing it from
+  `onReady` does not work — an `unmute()` there is re-muted by the player right
+  after (also measured), so the flag is the only lever. Mobile keeps
+  `silentAutoPlay: true` plus the explicit mute-and-play, unchanged. If a
+  desktop browser does refuse sound — autoplay policy is per-site and can deny
+  even after a click — the "Tap for sound" pill mobile already had now appears
+  there too, instead of leaving a silent video with no obvious fix. The
+  UA/touch-points check moved to a single `isMobile()` helper, since the
+  decision is now needed both when configuring the player and in `onReady`.
+
 ## v1.4.0 — 2026-08-01
 
 - `campaign.css` — cover the full block vocabulary FAUR's Idea editor can

@@ -10,6 +10,12 @@
   const triggerSelector = '[data-video-trigger]';
   const triggerBoundAttr = 'data-vm-bound';
   const isValidVideoId = (id) => /^[A-Za-z0-9_-]{3,80}$/.test(id);
+  // iPadOS reports a desktop UA, so touch points are the tell.
+  const isMobile = () => {
+    const ua = navigator.userAgent || '';
+    return /iPhone|iPad|iPod|Android/i.test(ua)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  };
   const handleKeydown = (e) => {
     if (e.key === 'Escape') closeModal();
   };
@@ -128,35 +134,43 @@
         currentVideo = null;
 
         // Configure Wistia (autoplay on open)
+        const mobile = isMobile();
         window._wq.push({
           id: videoId,
           options: {
             autoPlay: true,
             // Mobile blocks autoplay-with-sound outside a tap gesture (the
-            // player loads async), so it would stay paused. silentAutoPlay lets
-            // it autoplay muted (Wistia shows a "Click for sound" prompt), and
-            // playsinline keeps playback inside our fullscreen modal on iOS
-            // rather than handing off to the native player. Desktop is
-            // unaffected and still autoplays with sound.
-            silentAutoPlay: true,
+            // player loads async), so it would stay paused. `silentAutoPlay:
+            // true` lets it autoplay muted (Wistia shows a "Click for sound"
+            // prompt), and playsinline keeps playback inside our fullscreen
+            // modal on iOS rather than handing off to the native player.
+            //
+            // Desktop gets `'allow'` instead: try sound first, fall back to
+            // muted only if the browser refuses. `true` mutes unconditionally,
+            // and it cannot be undone from onReady — measured, an `unmute()`
+            // there is re-muted by the player right after, so the flag is the
+            // only lever.
+            silentAutoPlay: mobile ? true : 'allow',
             playsinline: true
           },
           onReady: function(video) {
             currentVideo = video;
 
-            // Autoplay on open. Desktop plays with sound via autoPlay above.
-            // Mobile (esp. iOS Safari) blocks sound-autoplay outside a tap
-            // gesture, and the async Wistia load lands outside ours, so
-            // silentAutoPlay config alone is unreliable — explicitly mute + play,
-            // which mobile allows for muted playback (Wistia then shows its
-            // "Click for sound" prompt).
-            var ua = navigator.userAgent || '';
-            var isMobile = /iPhone|iPad|iPod|Android/i.test(ua)
-              || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-            if (isMobile) {
+            // Autoplay on open. Mobile (esp. iOS Safari) blocks sound-autoplay
+            // outside a tap gesture, and the async Wistia load lands outside
+            // ours, so silentAutoPlay config alone is unreliable — explicitly
+            // mute + play, which mobile allows for muted playback.
+            if (mobile) {
               try { video.mute(); } catch (e) {}
               try { video.play(); } catch (e) {}
               showUnmuteButton();
+            } else {
+              // Autoplay policy is per-site and can deny sound even after a
+              // click. If it did, offer the same pill mobile gets rather than
+              // leaving a silent video with no obvious way to fix it.
+              setTimeout(function () {
+                try { if (video.isMuted()) showUnmuteButton(); } catch (e) {}
+              }, 400);
             }
             // Drop our button if the video is unmuted by any means.
             try { video.bind('mutechange', function (muted) { if (!muted) removeUnmuteButton(); }); } catch (e) {}

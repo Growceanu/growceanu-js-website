@@ -3,6 +3,33 @@
 Notable changes to the served scripts. Versions are Git tags (`vX.Y.Z`);
 Webflow pins the major range `@1`.
 
+## v1.5.0 — 2026-08-04
+
+- `campaign.css` — styling for an inline Wistia player with custom controls
+  (`gc-*`): Wistia's own chrome is hidden and replaced by fullscreen, mute and
+  replay buttons that fade in on hover, stay out on touch with a larger tap
+  target, and grow in fullscreen. `.gc-click` covers the player to take the
+  click before Wistia's native click-to-play, so the JS that owns these
+  controls drives playback itself.
+
+  The whole block is inert until that markup exists — every selector is either
+  a `gc-*` class or scoped inside `.gc-wistia-wrap` — so it changes nothing on
+  the pages serving `@1` today. **The matching JS does not live in this repo
+  yet**; the buttons and the click layer do nothing without it.
+
+  Two fixes on top of the authored rules. `env(safe-area-inset-bottom)` gained
+  its `0px` fallback: without one the whole `calc()` is invalid where the
+  variable is unsupported, so `bottom` reverted to the non-fullscreen `10px`
+  and put the controls under the home indicator — precisely the case the rule
+  exists for. `videomodal.js` already writes it with the fallback. And `.gc-vc`
+  gained a `:focus-visible` ring: revealing the buttons on `:focus-within` made
+  them visible to keyboard users but not locatable.
+
+  The `@media (hover: none)` blocks were merged and the block reflowed to match
+  the rest of the file. Verified no behaviour changed: computed styles across
+  all eight elements are identical before and after, in the default state and
+  with the touch and fullscreen branches forced on.
+
 ## v1.4.1 — 2026-08-02
 
 - `videomodal.js` — the video now starts with sound on desktop. It had been

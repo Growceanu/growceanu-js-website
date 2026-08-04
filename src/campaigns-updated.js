@@ -1,3 +1,22 @@
+/*!
+ * campaigns-updated.js — DEPRECATED. Superseded by campaigns-v2.js.
+ *
+ * Used on: NOTHING. Verified 2026-08-01 against the live site: no page on
+ * growceanu.com references this file. The campaigns grid is rendered by
+ * campaigns-v2.js on /, /opportunities, /ro and /ro/opportunities; the detail
+ * page is rendered by campaign.js on /campaign and /ro/campanie.
+ *
+ * Do not load this file. It targets the same container
+ * (#campaigns-grid-container) and declares the same top-level identifiers as
+ * campaigns-v2.js, so loading both on one page throws
+ * "Identifier 'API_BASE_URL' has already been declared" and breaks the page.
+ *
+ * Missing vs campaigns-v2.js: coming-soon section, RO locale (/campanie/,
+ * "În curând", "Urmărește"), openable Campaign-preparation cards.
+ *
+ * Kept only so the published CDN path stays resolvable. Delete in a future
+ * release once we are sure nothing external pins it.
+ */
 const API_BASE_URL = 'https://api3.growceanu.com/api/rest/';
 const LIMIT = Number.isFinite(Number(window.CAMPAIGNS_CONFIG?.limit))
   ? Number(window.CAMPAIGNS_CONFIG.limit)

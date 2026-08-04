@@ -1,7 +1,8 @@
 /*!
- * campaign.css — rich-text styling for the campaign "Idea" content
+ * campaign.css — campaign page styling: the "Idea" rich text, and the inline
+ * Wistia player's custom controls
  * Used on: Webflow campaign pages — /campaign/?cid=… (pairs with campaign.js)
- *          and the CMS template /campaigns/<slug> (no JS, Webflow Rich Text)
+ *          and the CMS template /campaigns/<slug> (Webflow Rich Text)
  * Added: v1.2.0
  */
 
@@ -223,4 +224,196 @@
   margin: 24px 0 !important;
   border: 0;
   border-top: 1px solid #d9dce5;
+}
+
+/* ---------------------------------------------------------------------------
+ * Inline Wistia player with custom controls (`gc-*`).
+ *
+ * Wistia's own chrome is hidden and replaced by three buttons — fullscreen,
+ * mute, replay — that fade in on hover and stay visible on touch. `.gc-click`
+ * covers the player to take the click before Wistia's native click-to-play, so
+ * the JS that owns these controls drives playback itself.
+ * ------------------------------------------------------------------------- */
+
+/*
+ * Wistia ships hashed, versioned class names, so there is nothing stable to
+ * target — substring matching on the parts that have held is the only option,
+ * and it is expected to need revisiting when Wistia changes its player markup.
+ * The `w-` prefix is also Webflow's; these three names are specific enough not
+ * to collide with `w-button`, `w-richtext` and friends.
+ */
+.gc-wistia-wrap [class*="w-bottom-bar"],
+.gc-wistia-wrap [class*="w-control-bar"],
+.gc-wistia-wrap [class*="w-vulcan"] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.gc-click {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 7;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.gc-video-ctrls {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+}
+
+.gc-vc {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-left: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 0.2s ease;
+}
+
+.gc-vc:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+/* Keyboard users reach these before any hover happens, so they need a ring of
+ * their own — the reveal below only makes the buttons visible, not locatable. */
+.gc-vc:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.gc-vc svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* Collapsed until the player is hovered or focused. Width and margin animate
+ * rather than `display`, so the buttons slide out of the corner. */
+.gc-toggle {
+  width: 0;
+  margin-left: 0;
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+  transition: width 0.28s ease, margin-left 0.28s ease, opacity 0.28s ease,
+    transform 0.28s ease, background 0.2s ease;
+}
+
+.gc-wistia-wrap:hover .gc-toggle,
+.gc-wistia-wrap:focus-within .gc-toggle {
+  width: 30px;
+  margin-left: 6px;
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* Staggered so they unfold outward instead of arriving as one block. */
+.gc-wistia-wrap:hover .gc-vc-fs {
+  transition-delay: 0s;
+}
+
+.gc-wistia-wrap:hover .gc-vc-mute {
+  transition-delay: 0.05s;
+}
+
+.gc-wistia-wrap:hover .gc-vc-replay {
+  transition-delay: 0.1s;
+}
+
+/* No hover to reveal them on touch, so they stay out — and get a bigger tap
+ * target while they are there. */
+@media (hover: none) {
+  .gc-vc {
+    width: 36px;
+    height: 36px;
+  }
+
+  .gc-toggle {
+    width: 36px;
+    margin-left: 6px;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .gc-vc svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/*
+ * Fullscreen. `:fullscreen` and `:-webkit-full-screen` stay in separate rules
+ * on purpose: a browser that does not recognise one selector drops the whole
+ * rule, so combining them into one list would break both.
+ */
+.gc-wistia-wrap:fullscreen {
+  background: #000;
+}
+
+.gc-wistia-wrap:-webkit-full-screen {
+  background: #000;
+}
+
+/* `env()` carries a fallback — without one the whole `calc()` is invalid where
+ * the variable is unsupported, and `bottom` reverts to the 10px above, putting
+ * the controls under the home indicator exactly where it matters. */
+.gc-wistia-wrap:fullscreen .gc-video-ctrls {
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+.gc-wistia-wrap:-webkit-full-screen .gc-video-ctrls {
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+.gc-wistia-wrap:fullscreen .gc-vc {
+  width: 44px;
+  height: 44px;
+  margin-left: 8px;
+  border-radius: 8px;
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.gc-wistia-wrap:-webkit-full-screen .gc-vc {
+  width: 44px;
+  height: 44px;
+  margin-left: 8px;
+  border-radius: 8px;
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.gc-wistia-wrap:fullscreen .gc-vc svg {
+  width: 22px;
+  height: 22px;
+}
+
+.gc-wistia-wrap:-webkit-full-screen .gc-vc svg {
+  width: 22px;
+  height: 22px;
 }
